@@ -1,0 +1,111 @@
+# This is an example Starter pipeline configuration
+# Use a skeleton to build, test and deploy using manual and parallel steps
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment.
+image: atlassian/default-image:2
+
+pipelines:
+  branches:
+    master:
+      - step:
+          name: "Build"
+          deployment: azure-dev-db
+          script:
+            - nvm install 14
+            - touch .env
+            - echo $ENV_FILE_BASE64 | base64 --decode --ignore-garbage > .env
+            - cat .env
+            - npm install
+            - npm run build
+            - npm run migration:sync
+            - npm run migration:run
+            - ls
+            - cd dist
+            - mkdir node_modules
+            - cd ..
+            - cp -R node_modules/* dist/node_modules
+            - cd dist
+            - zip -r ../emt-be-$BITBUCKET_BUILD_NUMBER.zip .
+          artifacts: 
+            - emt-be-*.zip
+      - step:
+          name: "Deploy to Azure"
+          deployment: azure-dev
+          script:
+            - pipe: microsoft/azure-web-apps-deploy:1.0.0
+              variables:
+                AZURE_APP_ID: $AZURE_APP_ID
+                AZURE_PASSWORD: $AZURE_PASSWORD
+                AZURE_TENANT_ID: $AZURE_TENANT_ID
+                AZURE_RESOURCE_GROUP: $RESOURCE_GROUP
+                AZURE_APP_NAME: $APP_NAME
+                ZIP_FILE: 'emt-be-$BITBUCKET_BUILD_NUMBER.zip'
+  custom:
+    qa:
+      - step:
+          name: "Build"
+          deployment: azure-qa-db
+          script:
+            - nvm install 14
+            - touch .env
+            - echo $ENV_FILE_BASE64 | base64 --decode --ignore-garbage > .env
+            - cat .env
+            - npm install
+            - npm run build
+            - npm run migration:sync
+            - npm run migration:run
+            - ls
+            - cd dist
+            - mkdir node_modules
+            - cd ..
+            - cp -R node_modules/* dist/node_modules
+            - cd dist
+            - zip -r ../emt-be-$BITBUCKET_BUILD_NUMBER.zip .
+          artifacts: 
+            - emt-be-*.zip
+      - step:
+          name: "Deploy to Azure"
+          deployment: azure-qa
+          script:
+            - pipe: microsoft/azure-web-apps-deploy:1.0.0
+              variables:
+                AZURE_APP_ID: $AZURE_APP_ID
+                AZURE_PASSWORD: $AZURE_PASSWORD
+                AZURE_TENANT_ID: $AZURE_TENANT_ID
+                AZURE_RESOURCE_GROUP: $RESOURCE_GROUP
+                AZURE_APP_NAME: $APP_NAME
+                ZIP_FILE: 'emt-be-$BITBUCKET_BUILD_NUMBER.zip'
+    prod:
+      - step:
+          name: "Build"
+          deployment: azure-prod-db
+          script:
+            - nvm install 14
+            - touch .env
+            - echo $ENV_FILE_BASE64 | base64 --decode --ignore-garbage > .env
+            - cat .env
+            - npm install
+            - npm run build
+            - npm run migration:sync
+            - npm run migration:run
+            - ls
+            - cd dist
+            - mkdir node_modules
+            - cd ..
+            - cp -R node_modules/* dist/node_modules
+            - cd dist
+            - zip -r ../emt-be-$BITBUCKET_BUILD_NUMBER.zip .
+          artifacts: 
+            - emt-be-*.zip
+      - step:
+          name: "Deploy to Azure"
+          deployment: azure-prod
+          script:
+            - pipe: microsoft/azure-web-apps-deploy:1.0.0
+              variables:
+                AZURE_APP_ID: $AZURE_APP_ID
+                AZURE_PASSWORD: $AZURE_PASSWORD
+                AZURE_TENANT_ID: $AZURE_TENANT_ID
+                AZURE_RESOURCE_GROUP: $RESOURCE_GROUP
+                AZURE_APP_NAME: $APP_NAME
+                ZIP_FILE: 'emt-be-$BITBUCKET_BUILD_NUMBER.zip'
