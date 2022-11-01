@@ -107,7 +107,9 @@ export class ApiKeyService {
           ${ABound} * (${requiredQuery}) AS aBound,
           ${BBound} * (${requiredQuery}) AS bBound,
           ${CBound} * (${requiredQuery}) AS cBound,
-          ${DBound} * (${requiredQuery}) AS dBound
+          ${DBound} * (${requiredQuery}) AS dBound,
+          from_date as fromDate,
+          to_date as toDate
         FROM vessel_trip
         ${this.vesselService.generateLeftJoinTable([
           'vessel',
