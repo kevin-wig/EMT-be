@@ -5,7 +5,7 @@ import { User } from 'src/modules/users/entities/user.entity';
 export class GetCIIDataDto {
   @IsNotEmpty()
   @ApiProperty()
-  vesselType: number
+  vesselType: number;
 
   @IsOptional()
   @ApiProperty()
@@ -14,40 +14,48 @@ export class GetCIIDataDto {
   @IsOptional()
   @ApiProperty()
   distanceTravelled: number;
-  
-  @IsOptional()
-  @ApiProperty()
-  mgo: number
 
   @IsOptional()
   @ApiProperty()
-  lfo: number
+  mgo: number;
 
   @IsOptional()
   @ApiProperty()
-  hfo: number
+  lfo: number;
 
   @IsOptional()
   @ApiProperty()
-  vlsfo_ad: number
+  hfo: number;
 
   @IsOptional()
   @ApiProperty()
-  vlsfo_xb: number
+  vlsfo_ad: number;
 
   @IsOptional()
   @ApiProperty()
-  vlsfo_ek: number
+  vlsfo_xb: number;
 
   @IsOptional()
   @ApiProperty()
-  lpg_pp: number
+  vlsfo_ek: number;
 
   @IsOptional()
   @ApiProperty()
-  lpg_bt: number
+  lpg_pp: number;
 
   @IsOptional()
   @ApiProperty()
-  bio_fuel: number
+  lpg_bt: number;
+
+  @IsOptional()
+  @ApiProperty()
+  bio_fuel: number;
+
+  @IsOptional()
+  @ApiProperty({ required: false })
+  from_date: Date;
+
+  @IsOptional()
+  @ApiProperty({ required: false })
+  to_date: Date;
 }

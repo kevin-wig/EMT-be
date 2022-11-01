@@ -129,6 +129,8 @@ export class ApiKeyService {
           ${data.lpg_pp ? `AND lpg_pp = ${data.lpg_pp}` : ""}
           ${data.lpg_bt ? `AND lpg_bt = ${data.lpg_bt}` : ""}
           ${data.bio_fuel ? `AND bio_fuel = ${data.bio_fuel}` : ""}
+          ${data.from_date ? `AND from_date >= '${data.from_date}'` : ""}
+          ${data.to_date ? `AND to_date <= '${data.to_date}'` : ""}
           ${
             dwt && dwt.length > 0
               ? `${dwt[0] ? `AND vessel.dwt >= ${dwt[0]}` : ''}
