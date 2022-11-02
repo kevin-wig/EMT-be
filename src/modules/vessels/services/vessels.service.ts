@@ -1681,7 +1681,7 @@ export class VesselsService {
       ${whereQuery}
         AND year = ${year || new Date().getFullYear()}
         ${level === GraphLevel.MONTH ? `AND year_tbl.year=${graphYear}` : ''}
-        ${level === GraphLevel.VOYAGE ? `AND month_tbl.month=${month}` : ''}
+        ${(level === GraphLevel.VOYAGE && month) ? `AND month_tbl.month=${month}` : ''}
       GROUP BY vessel.id, ${
         level !== GraphLevel.VOYAGE
           ? `${level.toLowerCase()}_tbl.${level.toLowerCase()}`
@@ -1689,6 +1689,7 @@ export class VesselsService {
       }
     `;
 
+    // console.log(subQuery);
     const result = await this.vesselsRepository.manager.query(subQuery);
 
     const chartData = isReport
