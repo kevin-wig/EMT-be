@@ -746,15 +746,15 @@ export class VesselsController {
     const { reportType } = options;
     let res;
 
-    const { year, month } = query;
+    const { year, month, isVoyage } = query;
     let level: GraphLevel;
 
-    if (!year && !month) {
+    if (isVoyage) {
+      level = GraphLevel.VOYAGE;
+    } else if (!year && !month) {
       level = GraphLevel.YEAR;
     } else if (year && !month) {
       level = GraphLevel.MONTH;
-    } else {
-      level = GraphLevel.VOYAGE;
     }
 
     if (reportType === ReportType.CII) {

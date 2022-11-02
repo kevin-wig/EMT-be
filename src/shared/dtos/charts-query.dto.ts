@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { VoyageType } from '../constants/global.constants';
 
@@ -20,6 +20,12 @@ export class ChartsQueryDto {
   @IsNumber()
   @Transform((params) => +params.value)
   month: number;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  @Transform((params) => !!params.value)
+  isVoyage: boolean;
 
   @ApiProperty({ required: false })
   @IsOptional()

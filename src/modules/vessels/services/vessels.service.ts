@@ -1668,7 +1668,7 @@ export class VesselsService {
         vessel.net_tonnage,
         ${level === GraphLevel.YEAR ? 'year_tbl.year AS "key",' : ''}
         ${level === GraphLevel.MONTH ? 'month_tbl.month AS "key",' : ''}
-        ${level === GraphLevel.VOYAGE ? 'vessel_trip.id AS "key",' : ''}
+        ${level === GraphLevel.VOYAGE ? 'vessel_trip.id AS "key",vessel_trip.voyage_id AS "voyageId",' : ''}
         ${emissionsQuery} AS emissions,
         ${ciiQuery} AS cii
       FROM vessel
@@ -1681,7 +1681,7 @@ export class VesselsService {
       ${whereQuery}
         AND year = ${year || new Date().getFullYear()}
         ${level === GraphLevel.MONTH ? `AND year_tbl.year=${graphYear}` : ''}
-        ${level === GraphLevel.VOYAGE ? `AND month_tbl.month=${month}` : ''}
+        ${(level === GraphLevel.VOYAGE && month) ? `AND month_tbl.month=${month}` : ''}
       GROUP BY vessel.id, ${
         level !== GraphLevel.VOYAGE
           ? `${level.toLowerCase()}_tbl.${level.toLowerCase()}`
@@ -1689,6 +1689,7 @@ export class VesselsService {
       }
     `;
 
+    // console.log(subQuery);
     const result = await this.vesselsRepository.manager.query(subQuery);
 
     const chartData = isReport
@@ -1697,12 +1698,12 @@ export class VesselsService {
           if (result.find((item) => item.id === vessel.id)) {
             result
               .find((item) => item.id === vessel.id)
-              .data.push({ key: vessel.key, cii: vessel.cii });
+              .data.push({ key: vessel.key, name: vessel.voyageId, cii: vessel.cii });
           } else {
             result.push({
               id: vessel.id,
               name: vessel.name,
-              data: [{ key: vessel.key, cii: vessel.cii }],
+              data: [{ key: vessel.key, name: vessel.voyageId, cii: vessel.cii }],
               ...(level === GraphLevel.MONTH && { year: graphYear }),
             });
           }
