@@ -1664,7 +1664,7 @@ export class VesselsService {
       SELECT
         vessel.id,
         vessel.name,
-        IF(vessel.dwt >= 279000, 279000,! vessel.dwt) AS dwt,
+        IF(vessel.dwt >= 279000, 279000, vessel.dwt) AS dwt,
         vessel.net_tonnage,
         ${level === GraphLevel.YEAR ? 'year_tbl.year AS "key",' : ''}
         ${level === GraphLevel.MONTH ? 'month_tbl.month AS "key",' : ''}
@@ -1689,7 +1689,6 @@ export class VesselsService {
       }
     `;
 
-    // console.log(subQuery);
     const result = await this.vesselsRepository.manager.query(subQuery);
 
     const chartData = isReport
@@ -1698,12 +1697,12 @@ export class VesselsService {
           if (result.find((item) => item.id === vessel.id)) {
             result
               .find((item) => item.id === vessel.id)
-              .data.push({ key: vessel.key, name: vessel.voyageId, cii: vessel.cii });
+              .data.push({ key: vessel.key, name: vessel.voyageId, dwt: vessel.dwt, cii: vessel.cii });
           } else {
             result.push({
               id: vessel.id,
               name: vessel.name,
-              data: [{ key: vessel.key, name: vessel.voyageId, cii: vessel.cii }],
+              data: [{ key: vessel.key, name: vessel.voyageId, dwt: vessel.dwt, cii: vessel.cii }],
               ...(level === GraphLevel.MONTH && { year: graphYear }),
             });
           }
