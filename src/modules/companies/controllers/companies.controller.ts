@@ -198,6 +198,7 @@ export class CompaniesController {
     @Query() searchParams: SearchVesselDto,
     @Req() req: IRequest,
   ) {
+    const user = req.user;
     await this.isEnableToAccessToCompanyData(req.user, +id);
 
     searchParams.companyId = +id;
@@ -206,6 +207,7 @@ export class CompaniesController {
       paginationParams,
       sortParams,
       searchParams,
+      user,
     );
 
     if (res) {

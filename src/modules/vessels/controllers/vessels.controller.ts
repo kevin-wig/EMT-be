@@ -3,7 +3,6 @@ import {
   Body,
   Controller,
   Delete,
-  ExecutionContext,
   ForbiddenException,
   Get,
   Param,
@@ -49,11 +48,8 @@ import { UsersService } from '../../users/services/users.service';
 import { ComparisonReportDto, ReportType } from '../dto/comparison-report.dto';
 import { ChartsQueryDto } from '../../../shared/dtos/charts-query.dto';
 import { YearQueryDto } from '../../../shared/dtos/year-query.dto';
-import { request, Response } from 'express';
+import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { hostname } from 'os';
-import { Reflector } from '@nestjs/core';
-import { AuthGuard } from '@nestjs/passport';
 import { VesselOnboardingLinksService } from 'src/modules/vessel-onboarding-links/services/vessel-onboarding-links.service';
 import { CompaniesService } from 'src/modules/companies/services/companies.service';
 
@@ -167,11 +163,14 @@ export class VesselsController {
     @Query() paginationParams: PaginationParamsDto,
     @Query() sortParams: SortOrderDto,
     @Query() searchParams: SearchVesselDto,
+    @Req() req: IRequest,
   ) {
+    const user = req.user;
     const res = await this.vesselsService.getVesselsList(
       paginationParams,
       sortParams,
       searchParams,
+      user,
     );
 
     return {
