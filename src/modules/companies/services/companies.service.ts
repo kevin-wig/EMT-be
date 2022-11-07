@@ -30,6 +30,7 @@ import { ExcelService } from '../../../shared/services/excel.service';
 import { FleetsService } from '../../fleets/services/fleets.service';
 import { FilterDto } from '../../../shared/dtos/excel.dto';
 import { PdfService } from '../../../shared/services/pdf.service';
+import { IPayload } from '../../auth/auth.types';
 
 @Injectable()
 export class CompaniesService {
@@ -137,11 +138,13 @@ export class CompaniesService {
     paginationOption: PaginationParamsDto,
     sortOption: SortOrderDto,
     searchOption: SearchVesselDto,
+    user: IPayload,
   ) {
     return await this.vesselsService.getVesselsList(
       paginationOption,
       sortOption,
       searchOption,
+      user,
     );
   }
 

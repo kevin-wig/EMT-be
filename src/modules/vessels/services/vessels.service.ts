@@ -29,6 +29,7 @@ import {
   CBound_BC,
   DBound_BC,
   VoyageType,
+  Roles,
 } from '../../../shared/constants/global.constants';
 import { User } from '../../users/entities/user.entity';
 import { ComparisonReportDto, ReportType } from '../dto/comparison-report.dto';
@@ -50,9 +51,9 @@ import {
 } from '../../../shared/constants/excel.constants';
 import { PdfService } from '../../../shared/services/pdf.service';
 import { VesselType } from '../entities/vessel-type.entity';
-import { CompaniesService } from '../../companies/services/companies.service';
 import { Company } from 'src/modules/companies/entities/company.entity';
 import * as moment from 'moment';
+import { IPayload } from '../../auth/auth.types';
 // Todo: factor and rate should be provided.
 const FACTOR = 0.7;
 const RATE = 2.5;
@@ -1264,7 +1265,13 @@ export class VesselsService {
     paginationOption: PaginationParamsDto,
     sortOption: SortOrderDto,
     searchOption: SearchVesselDto,
+    user: IPayload,
   ) {
+    if (user.role === Roles.COMPANY_EDITOR) {
+      const me = await this.userRepository.findOne(user.id);
+      searchOption.companyId = me.companyId;
+    }
+
     let { year } = searchOption;
     const companyId = searchOption.companyId;
 
