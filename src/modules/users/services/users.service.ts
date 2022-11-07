@@ -200,7 +200,7 @@ export class UsersService {
   }
 
   findRoles(): Promise<UserRole[]> {
-    return this.userRoleRepository.find();
+    return this.userRoleRepository.find({ order: { id: 'ASC' } });
   }
 
   async findOneByEmail(email: string): Promise<User> {
