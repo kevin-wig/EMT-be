@@ -99,7 +99,7 @@ export class UsersService {
   ): Promise<ListDto<User>> {
     const { page, limit } = paginationOption;
     const { sortBy, order } = sortOption;
-    if (user.role === Roles.COMPANY_EDITOR) {
+    if (user.role !== Roles.SUPER_ADMIN) {
       const me = await this.findOneById(user.id);
       searchOption.companyId = me.companyId;
     }
