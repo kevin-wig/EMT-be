@@ -4,12 +4,16 @@ import { User } from 'src/modules/users/entities/user.entity';
 
 export class GetCIIDataDto {
   @IsNotEmpty()
+  @ApiProperty({ required: true })
+  imo: string;
+
+  @IsNotEmpty()
   @ApiProperty()
   vesselType: number;
 
   @IsOptional()
   @ApiProperty()
-  dwt: Array<any>;
+  dwt: number[];
 
   @IsOptional()
   @ApiProperty()
