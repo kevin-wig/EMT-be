@@ -1267,7 +1267,7 @@ export class VesselsService {
     searchOption: SearchVesselDto,
     user: IPayload,
   ) {
-    if (user.role === Roles.COMPANY_EDITOR) {
+    if (user.role !== Roles.SUPER_ADMIN) {
       const me = await this.userRepository.findOne(user.id);
       searchOption.companyId = me.companyId;
     }
