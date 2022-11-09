@@ -149,12 +149,10 @@ export class ApiKeyService {
         `);
       }
 
-      return { message: `Your company is not authorized to make requests for the vessel with IMO ${imo}` };
+      throw `Your company is not authorized to make requests for the vessel with IMO ${imo}`;
     }
 
-    return { message: 'No data for this user' };
+    throw `Vessel which has IMO ${imo} for your api key does not exist`;
   }
 
 }
-
-
