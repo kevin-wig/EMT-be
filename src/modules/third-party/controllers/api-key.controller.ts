@@ -94,7 +94,7 @@ export class ApiKeyController {
         data: res
     }))
     .catch((err) => {
-        throw new BadRequestException(err.sqlMessage);
+        throw new BadRequestException(err.sqlMessage || err);
     })
   } 
 }
