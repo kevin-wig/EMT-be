@@ -2,7 +2,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { genSalt, hash } from 'bcrypt';
-import { Like, Not, Repository, SelectQueryBuilder, IsNull } from 'typeorm';
+import { Like, Not, Repository, SelectQueryBuilder } from 'typeorm';
 
 import { MessagingService } from './messaging.service';
 import { CreateUserDto } from '../dto/create-user.dto';
