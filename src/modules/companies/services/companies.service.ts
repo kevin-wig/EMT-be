@@ -14,7 +14,7 @@ import { SortOrderDto } from '../../../shared/dtos/sort-order.dto';
 import { SearchCompanyDto } from '../dto/search-company.dto';
 import { FindManyOptions } from 'typeorm/find-options/FindManyOptions';
 import { SearchVesselDto } from '../../vessels/dto/search-vessel.dto';
-import { GraphLevel } from '../../../shared/constants/global.constants';
+import { GraphLevel, Roles } from '../../../shared/constants/global.constants';
 import { ChartsQueryDto } from '../../../shared/dtos/charts-query.dto';
 import {
   VesselsCiiTable,
@@ -31,6 +31,7 @@ import { FleetsService } from '../../fleets/services/fleets.service';
 import { FilterDto } from '../../../shared/dtos/excel.dto';
 import { PdfService } from '../../../shared/services/pdf.service';
 import { IPayload } from '../../auth/auth.types';
+import { UsersService } from '../../users/services/users.service';
 
 @Injectable()
 export class CompaniesService {
@@ -41,6 +42,7 @@ export class CompaniesService {
     private excelService: ExcelService,
     private pdfService: PdfService,
     private fleetService: FleetsService,
+    private usersService: UsersService,
   ) {}
 
   private async fetchFilterParams(searchOption: SearchVesselDto) {
@@ -79,12 +81,21 @@ export class CompaniesService {
     paginationOption: PaginationParamsDto,
     sortOption: SortOrderDto,
     searchOption: SearchCompanyDto,
+    user: IPayload,
   ) {
+    let companyId;
+    if (user.role !== Roles.SUPER_ADMIN) {
+      const me = await this.usersService.findOneById(user.id);
+      companyId = me.companyId;
+    }
     const { page, limit } = paginationOption;
     const { sortBy, order } = sortOption;
     const { search } = searchOption;
 
     const filter = [];
+    if (companyId) {
+      filter.push({ id: companyId });
+    }
     if (search) {
       filter.push({ name: Like(`%${search}%`) });
       filter.push({ primaryContactEmailAddress: Like(`%${search}%`) });

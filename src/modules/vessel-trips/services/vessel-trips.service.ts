@@ -34,7 +34,7 @@ import {
   FuelFactors,
   FuelType,
   GraphLevel,
-  JourneyType,
+  JourneyType, Roles,
   VoyageType,
 } from '../../../shared/constants/global.constants';
 import { VesselTripTable } from '../dto/export-vessel-trip.dto';
@@ -44,6 +44,8 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { YearlyAggregate } from '../entities/yearly-aggregate.entity';
 import * as moment from "moment";
 import { date } from 'joi';
+import { IPayload } from '../../auth/auth.types';
+import { UsersService } from '../../users/services/users.service';
 
 @Injectable()
 export class VesselTripsService {
@@ -62,6 +64,7 @@ export class VesselTripsService {
     @InjectRepository(Grade)
     private gradeRepository: Repository<Grade>,
     private vesselsService: VesselsService,
+    private usersService: UsersService,
     private excelService: ExcelService,
     private pdfService: PdfService,
   ) {
@@ -657,7 +660,11 @@ export class VesselTripsService {
     }
   }
 
-  async getCiiChart(searchParams: SearchVesselTripDto) {
+  async getCiiChart(searchParams: SearchVesselTripDto, user: IPayload) {
+    if (user.role !== Roles.SUPER_ADMIN) {
+      const me = await this.usersService.findOneById(user.id);
+      searchParams.companyId = me.companyId.toString();
+    }
     const { level, fromDate, toDate, voyageType, vesselId, companyId } = searchParams;
 
     const { ciiQuery, requiredQuery, DWTQuery, emissionsQuery, categoryQuery } =
@@ -723,6 +730,7 @@ export class VesselTripsService {
       'vessel_trip',
       'year_tbl_group_by',
       'vessel_type',
+      'company',
     ])}
       ${whereQuery}
       ${vesselId ? `AND vessel.id = ${vesselId}` : ''}
