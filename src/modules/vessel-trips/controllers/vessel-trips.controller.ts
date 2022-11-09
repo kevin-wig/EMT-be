@@ -41,13 +41,17 @@ import { PaginationParamsDto } from '../../../shared/dtos/pagination.dto';
 import { SortOrderDto } from '../../../shared/dtos/sort-order.dto';
 import { SearchVesselTripDto } from '../dto/search-vessel-trip.dto';
 import { HasRole } from 'src/modules/users/decorators/user-role.decorator';
+import { UsersService } from '../../users/services/users.service';
 
 @ApiTags('vessel-trip')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('vessel-trips')
 export class VesselTripsController {
-  constructor(private readonly vesselTripsService: VesselTripsService) { }
+  constructor(
+    private readonly vesselTripsService: VesselTripsService,
+    private readonly usersService: UsersService,
+  ) { }
 
   @Post()
   @ApiOperation({
@@ -134,8 +138,9 @@ export class VesselTripsController {
   })
   @ApiResponse({ status: 200, type: VesselTripsResponseDto })
   @ApiResponse({ status: 400, type: FailedResponseDto })
-  async getCIIChart(@Query() searchParams: SearchVesselTripDto) {
-    const res = await this.vesselTripsService.getCiiChart(searchParams);
+  async getCIIChart(@Query() searchParams: SearchVesselTripDto, @Req() req) {
+    const user = req.user;
+    const res = await this.vesselTripsService.getCiiChart(searchParams, user);
 
     return {
       message: SUCCESS,
@@ -188,7 +193,14 @@ export class VesselTripsController {
   async getVoyagesByVesselFuelChart(
     @Param('vesselId') vesselId: string,
     @Query() searchParams: SearchVesselTripDto,
+    @Req() req,
   ) {
+    const user = req.user;
+    if (user.role !== Roles.SUPER_ADMIN) {
+      const me = await this.usersService.findOneById(user.id);
+      searchParams.companyId = me.companyId.toString();
+    }
+
     const res = await this.vesselTripsService.getVoyagesByVesselFuelChart(
       +vesselId,
       searchParams,

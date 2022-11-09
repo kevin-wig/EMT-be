@@ -30,6 +30,8 @@ import {
   PaginationParamsDto,
 } from '../../../shared/dtos/pagination.dto';
 import { ListDto } from '../../../shared/dtos/list.dto';
+import { Vessel } from '../../vessels/entities/vessel.entity';
+import { Fleet } from '../../fleets/entities/fleet.entity';
 
 @Injectable()
 export class UsersService {
@@ -42,6 +44,10 @@ export class UsersService {
     private userRoleRepository: Repository<UserRole>,
     @InjectRepository(Company)
     private companyRepository: Repository<Company>,
+    @InjectRepository(Vessel)
+    private vesselRepository: Repository<Vessel>,
+    @InjectRepository(Fleet)
+    private fleetRepository: Repository<Fleet>,
   ) {}
 
   async create(user: CreateUserDto): Promise<User> {
@@ -192,11 +198,16 @@ export class UsersService {
     });
   }
 
-  findOneById(id: number) {
-    return this.usersRepository.findOne({
+  async findOneById(id: number, isDetailed = false) {
+    const user = await this.usersRepository.findOne({
       where: { id },
       relations: ['company', 'userRole'],
     });
+
+    if (isDetailed && user.company) {
+      user.company = await this.companyRepository.findOne(user.companyId, { relations: ['fleets', 'vessels'] });
+    }
+    return user;
   }
 
   findRoles(): Promise<UserRole[]> {

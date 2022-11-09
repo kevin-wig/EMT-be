@@ -135,11 +135,14 @@ export class CompaniesController {
     @Query() paginationParams: PaginationParamsDto,
     @Query() sortParams: SortOrderDto,
     @Query() searchParams: SearchCompanyDto,
+    @Req() req: IRequest,
   ) {
+    const user = req.user;
     const res = await this.companiesService.find(
       paginationParams,
       sortParams,
       searchParams,
+      user,
     );
 
     if (res) {
