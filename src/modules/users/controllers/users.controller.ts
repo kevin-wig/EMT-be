@@ -81,7 +81,7 @@ export class UsersController {
   @ApiResponse({ status: 400, type: FailedResponseDto })
   findMe(@Req() req: IRequest) {
     const { id } = req.user;
-    return this.usersService.findOneById(+id);
+    return this.usersService.findOneById(+id, true);
   }
 
   @Get('roles')

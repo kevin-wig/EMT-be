@@ -9,10 +9,12 @@ import { UsersService } from './services/users.service';
 import { jwtConstants } from '../auth/constants';
 import { TokensModule } from '../tokens/tokens.module';
 import { Company } from '../companies/entities/company.entity';
+import { Vessel } from '../vessels/entities/vessel.entity';
+import { Fleet } from '../fleets/entities/fleet.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, UserRole, Company]),
+    TypeOrmModule.forFeature([User, UserRole, Company, Vessel, Fleet]),
     TokensModule,
     JwtModule.register({
       secret: jwtConstants.secret,
