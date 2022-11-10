@@ -54,6 +54,7 @@ import { VesselType } from '../entities/vessel-type.entity';
 import { Company } from 'src/modules/companies/entities/company.entity';
 import * as moment from 'moment';
 import { IPayload } from '../../auth/auth.types';
+import { GetCIIDataDto } from '../../third-party/dto/get-cii-data.dto';
 // Todo: factor and rate should be provided.
 const FACTOR = 0.7;
 const RATE = 2.5;
@@ -100,7 +101,7 @@ export class VesselsService {
       ) OR vessel_trip.is_aggregate = 1`;
   }
 
-  public generateCiiQueryString(year: number, fuelTypes?: string[]) {
+  public generateCiiQueryString(year: number, fuelTypes: string[] = [], data?: GetCIIDataDto) {
     let emissionsQuery: string;
 
     if (fuelTypes && fuelTypes.length > 0) {
@@ -109,12 +110,13 @@ export class VesselsService {
         .join(' + ');
       emissionsQuery = `SUM(${fuelCalc})`;
     } else {
-      emissionsQuery = `SUM(COALESCE(mgo, 0) * 3.206 + COALESCE(lfo, 0) * 3.151 + COALESCE(hfo, 0) * 3.114 + COALESCE(vlsfo, 0) * 3.114 + COALESCE(lng, 0) * 2.75 + COALESCE(vlsfo_ad, 0) * 3.151 + COALESCE(vlsfo_xb, 0) * 3.206 + COALESCE(vlsfo_ek, 0) * 3.114 + COALESCE(lpg_pp, 0) * 3 + COALESCE(lpg_bt, 0) * 3.03 + COALESCE(bio_fuel, 0) * 2.8)`;
+      const emission = `(COALESCE(mgo, ${data?.mgo || 0}) * 3.206 + COALESCE(lfo, ${data?.lfo || 0}) * 3.151 + COALESCE(hfo, ${data?.hfo || 0}) * 3.114 + COALESCE(vlsfo, 0) * 3.114 + COALESCE(lng, 0) * 2.75 + COALESCE(vlsfo_ad, ${data?.vlsfo_ad || 0}) * 3.151 + COALESCE(vlsfo_xb, ${data?.vlsfo_xb || 0}) * 3.206 + COALESCE(vlsfo_ek, ${data?.vlsfo_ek || 0}) * 3.114 + COALESCE(lpg_pp, ${data?.lpg_pp || 0}) * 3 + COALESCE(lpg_bt, ${data?.lpg_bt || 0}) * 3.03 + COALESCE(bio_fuel, ${data?.bio_fuel || 0}) * 2.8)`;
+      emissionsQuery = `COALESCE(SUM(${emission}), ${emission})`;
     }
 
-    const vesselTypeFactorQuery = `IF(vessel_type.vessel_type = 'Chemical Tanker' OR vessel_type.vessel_type = 'Oil Tanker', 5247, IF(vessel_type.vessel_type = 'Bulk Carrier', 4745, 0))`;
-    const vesselTypePowQuery = `IF(vessel_type.vessel_type = 'Chemical Tanker' OR vessel_type.vessel_type = 'Oil Tanker', -0.61, IF(vessel_type.vessel_type = 'Bulk Carrier', -0.622, -0.61))`;
-    const target2019Query = `POW(vessel.dwt, ${vesselTypePowQuery}) *  ${vesselTypeFactorQuery}`;
+    const vesselTypeFactorQuery = `IF(COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType  || null})) = 'Chemical Tanker' OR COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType  || null})) = 'Oil Tanker', 5247, IF(COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType  || null})) = 'Bulk Carrier', 4745, 0))`;
+    const vesselTypePowQuery = `IF(COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType  || null})) = 'Chemical Tanker' OR COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType  || null})) = 'Oil Tanker', -0.61, IF(COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType  || null})) = 'Bulk Carrier', -0.622, -0.61))`;
+    const target2019Query = `POW(COALESCE(vessel.dwt, ${data?.dwt?.[0] || 0}), ${vesselTypePowQuery}) *  ${vesselTypeFactorQuery}`;
     const requiredQuery = `COALESCE(
       CASE
         WHEN ${year || 'year_tbl.year'} = 2019 THEN ${target2019Query}
@@ -128,15 +130,15 @@ export class VesselsService {
         ELSE ${target2019Query} * 0.89
       END
     , 0)`;
-    const DWTQuery = `IF(vessel_type.vessel_type = 'Bulk Carrier', LEAST(vessel.dwt, 279000), vessel.dwt)`;
-    const ciiQuery = `COALESCE((${emissionsQuery} / (${DWTQuery} * SUM(distance_traveled))) * 1000000, 0)`;
+    const DWTQuery = `IF(COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType  || null})) = 'Bulk Carrier', LEAST(COALESCE(vessel.dwt, ${data?.dwt?.[0] || 0}), 279000), COALESCE(vessel.dwt, ${data?.dwt?.[0] || 0}))`;
+    const ciiQuery = `(${emissionsQuery} / (${DWTQuery} * COALESCE(SUM(distance_traveled), ${data?.distanceTravelled || 0}))) * 1000000`;
     const emissionsQueryEts: string = emissionsQuery;
     const ciiRateQuery = `(${ciiQuery}) / (${requiredQuery})`;
     const ciiDifferenceQuery = `(${ciiQuery}) - (${requiredQuery})`;
 
     // TO DO: Should check if we should use this over all queries.
     const selectBoundQuery = (bound, boundBC) => {
-      return `IF(vessel_type.vessel_type = 'Chemical Tanker' OR vessel_type.vessel_type = 'Oil Tanker', ${bound}, IF(vessel_type.vessel_type = 'Bulk Carrier', ${boundBC}, 0))`;
+      return `IF(COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType  || null})) = 'Chemical Tanker' OR COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType  || null})) = 'Oil Tanker', ${bound}, IF(COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType  || null})) = 'Bulk Carrier', ${boundBC}, 0))`;
     };
 
     const categoryQuery = `
