@@ -87,7 +87,7 @@ export class ApiKeyService {
 
 
   public async getVesselCIIData(@Req() request: Request, data: GetCIIDataDto) {
-    const { ciiQuery, categoryQuery, requiredQuery } = this.vesselService.generateCiiQueryString(0);
+    const { ciiQuery, categoryQuery, requiredQuery } = this.vesselService.generateCiiQueryString(0, [], data);
 
     const { dwt, imo } = data;
 
@@ -99,60 +99,56 @@ export class ApiKeyService {
 
     const vesselId = vessel?.id;
 
-    if (vesselId) {
-      const onBoardingLink = await this.onboardingLinksRepository.findOne({
-        where: {
-          company_id: vessel.companyId,
-          imo,
-        },
-      });
+    const onBoardingLink = await this.onboardingLinksRepository.findOne({
+      where: {
+        ...(vessel ? { company_id: vessel.companyId } : {}),
+        imo,
+      },
+    });
 
-      if (onBoardingLink) {
-        return await this.vesselTripRepository.manager.query(`
-          SELECT
-            ${ciiQuery} AS cii,
-            ${categoryQuery} AS category,
-            ${ABound} * (${requiredQuery}) AS aBound,
-            ${BBound} * (${requiredQuery}) AS bBound,
-            ${CBound} * (${requiredQuery}) AS cBound,
-            ${DBound} * (${requiredQuery}) AS dBound,
-            from_date as fromDate,
-            to_date as toDate
-          FROM vessel_trip
-          ${this.vesselService.generateLeftJoinTable([
-          'vessel',
-          'vessel_type',
-          'year_tbl',
-        ])}
-          WHERE
-            vessel_trip.journey_type = 'CII'
-            AND vessel = ${vesselId}
-            AND vessel_type_id = '${data.vesselType}'
-            ${data.mgo ? `AND mgo = ${data.mgo}` : ''}
-            ${data.lfo ? `AND lfo = ${data.lfo}` : ''}
-            ${data.hfo ? `AND hfo = ${data.hfo}` : ''}
-            ${data.vlsfo_ad ? `AND vlsfo_ad = ${data.vlsfo_ad}` : ''}
-            ${data.vlsfo_xb ? `AND vlsfo_xb = ${data.vlsfo_xb}` : ''}
-            ${data.vlsfo_ek ? `AND vlsfo_ek = ${data.vlsfo_ek}` : ''}
-            ${data.lpg_pp ? `AND lpg_pp = ${data.lpg_pp}` : ''}
-            ${data.lpg_bt ? `AND lpg_bt = ${data.lpg_bt}` : ''}
-            ${data.bio_fuel ? `AND bio_fuel = ${data.bio_fuel}` : ''}
-            ${data.from_date ? `AND from_date >= '${data.from_date}'` : ''}
-            ${data.to_date ? `AND to_date <= '${data.to_date}'` : ''}
-            ${dwt && dwt.length > 0
-            ? `
-              ${dwt[0] ? `AND vessel.dwt >= ${dwt[0]}` : ''}
-              ${dwt[1] > 0 ? `AND vessel.dwt <= ${dwt[1]}` : ''}`
-            : ''
-        }
-            AND vessel_trip.distance_traveled >= '${data.distanceTravelled}' 
-        `);
+    if (onBoardingLink) {
+      return await this.vesselTripRepository.manager.query(`
+        SELECT
+          ${ciiQuery} AS cii,
+          ${categoryQuery} AS category,
+          ${ABound} * (${requiredQuery}) AS aBound,
+          ${BBound} * (${requiredQuery}) AS bBound,
+          ${CBound} * (${requiredQuery}) AS cBound,
+          ${DBound} * (${requiredQuery}) AS dBound,
+          from_date as fromDate,
+          to_date as toDate
+        FROM vessel_trip
+        ${this.vesselService.generateLeftJoinTable([
+        'vessel',
+        'vessel_type',
+        'year_tbl',
+      ])}
+        WHERE
+          vessel_trip.journey_type = 'CII'
+          AND vessel_type_id = '${data.vesselType}'
+          ${vesselId ? `AND vessel = ${vesselId}` : ''}
+          ${data.mgo ? `AND mgo = ${data.mgo}` : ''}
+          ${data.lfo ? `AND lfo = ${data.lfo}` : ''}
+          ${data.hfo ? `AND hfo = ${data.hfo}` : ''}
+          ${data.vlsfo_ad ? `AND vlsfo_ad = ${data.vlsfo_ad}` : ''}
+          ${data.vlsfo_xb ? `AND vlsfo_xb = ${data.vlsfo_xb}` : ''}
+          ${data.vlsfo_ek ? `AND vlsfo_ek = ${data.vlsfo_ek}` : ''}
+          ${data.lpg_pp ? `AND lpg_pp = ${data.lpg_pp}` : ''}
+          ${data.lpg_bt ? `AND lpg_bt = ${data.lpg_bt}` : ''}
+          ${data.bio_fuel ? `AND bio_fuel = ${data.bio_fuel}` : ''}
+          ${data.from_date ? `AND from_date >= '${data.from_date}'` : ''}
+          ${data.to_date ? `AND to_date <= '${data.to_date}'` : ''}
+          ${dwt && dwt.length > 0
+          ? `
+            ${dwt[0] ? `AND vessel.dwt >= ${dwt[0]}` : ''}
+            ${dwt[1] > 0 ? `AND vessel.dwt <= ${dwt[1]}` : ''}`
+          : ''
       }
-
-      throw `Your company is not authorized to make requests for the vessel with IMO ${imo}`;
+          AND vessel_trip.distance_traveled >= '${data.distanceTravelled}' 
+      `);
     }
 
-    throw `Vessel which has IMO ${imo} for your api key does not exist`;
+    throw `Your company is not authorized to make requests for the vessel with IMO ${imo}`;
   }
 
 }
