@@ -84,7 +84,7 @@ export class VesselsService {
   ) {}
 
   public generateAggregateCheckQueryString() {
-    return `(
+    return `((
         (
           SELECT
             COUNT(vessel_trip.id)
@@ -97,7 +97,7 @@ export class VesselsService {
             AND vt.to_date >= vessel_trip.to_date
         ) = 0
         AND vessel_trip.is_aggregate <> 1
-      ) OR vessel_trip.is_aggregate = 1`;
+      ) OR vessel_trip.is_aggregate = 1)`;
   }
 
   public generateCiiQueryString(year: number, fuelTypes?: string[]) {
@@ -1060,7 +1060,7 @@ export class VesselsService {
           AND vessel = ${id}
           ${fromDate ? `AND vessel_trip.from_date >= '${fromDate}'` : ''}
           ${toDate ? `AND vessel_trip.to_date <= '${toDate}'` : ''}
-          AND ${aggregateQuery}
+          AND (${aggregateQuery})
         GROUP BY ${
           level === GraphLevel.VOYAGE
             ? 'vessel_trip.voyage_id'
@@ -1135,7 +1135,7 @@ export class VesselsService {
         ${toDate ? `AND vessel_trip.to_date <= '${toDate}'` : ''}
         ${vesselId ? `AND vessel.id = ${vesselId}` : ''}
         ${companyId ? `AND vessel.company_id = ${companyId}` : ''}
-        ${`AND ${aggregateQuery}`}
+        ${`AND (${aggregateQuery})`}
       GROUP BY vessel_trip.voyage_id
     `);
   }
@@ -1421,7 +1421,7 @@ export class VesselsService {
           AND vessel_trip.journey_type = 'CII'
           ${level === GraphLevel.MONTH ? `AND year_tbl.year=${year}` : ''}
           ${level === GraphLevel.VOYAGE ? `AND month_tbl.month=${month}` : ''}
-          AND ${aggregateQuery}
+          AND (${aggregateQuery})
         GROUP BY vessel.id, ${
           level !== GraphLevel.VOYAGE
             ? `${level.toLowerCase()}_tbl.${level.toLowerCase()}`
@@ -1566,7 +1566,7 @@ export class VesselsService {
         AND vessel_type.vessel_type = '${type}'
         ${level === GraphLevel.MONTH ? `AND year_tbl.year=${year}` : ''}
         ${level === GraphLevel.VOYAGE ? `AND month_tbl.month=${month}` : ''}
-        AND ${aggregateQuery}
+        AND (${aggregateQuery})
       GROUP BY vessel.id, ${
         level !== GraphLevel.VOYAGE
           ? `${level.toLowerCase()}_tbl.${level.toLowerCase()}`
@@ -1596,7 +1596,7 @@ export class VesselsService {
       WHERE
         vessel.company_id = ${companyId}
         AND year_tbl.year = ${year}
-        ANd ${aggregateQuery}
+        ANd (${aggregateQuery})
       GROUP BY vessel.id
     `;
 
@@ -1621,7 +1621,7 @@ export class VesselsService {
       ])}
       WHERE
         vessel.company_id = ${companyId}
-        AND ${aggregateQuery}
+        AND (${aggregateQuery})
       GROUP BY vessel.id
     `;
 
