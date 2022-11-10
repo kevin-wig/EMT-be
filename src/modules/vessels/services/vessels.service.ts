@@ -115,7 +115,7 @@ export class VesselsService {
     const vesselTypeFactorQuery = `IF(vessel_type.vessel_type = 'Chemical Tanker' OR vessel_type.vessel_type = 'Oil Tanker', 5247, IF(vessel_type.vessel_type = 'Bulk Carrier', 4745, 0))`;
     const vesselTypePowQuery = `IF(vessel_type.vessel_type = 'Chemical Tanker' OR vessel_type.vessel_type = 'Oil Tanker', -0.61, IF(vessel_type.vessel_type = 'Bulk Carrier', -0.622, -0.61))`;
     const target2019Query = `POW(vessel.dwt, ${vesselTypePowQuery}) *  ${vesselTypeFactorQuery}`;
-    const requiredQuery = `
+    const requiredQuery = `COALESCE(
       CASE
         WHEN ${year || 'year_tbl.year'} = 2019 THEN ${target2019Query}
         WHEN ${year || 'year_tbl.year'} = 2020 THEN ${target2019Query} * 0.99
@@ -127,9 +127,9 @@ export class VesselsService {
         WHEN ${year || 'year_tbl.year'} = 2026 THEN ${target2019Query} * 0.89
         ELSE ${target2019Query} * 0.89
       END
-    `;
+    , 0)`;
     const DWTQuery = `IF(vessel_type.vessel_type = 'Bulk Carrier', LEAST(vessel.dwt, 279000), vessel.dwt)`;
-    const ciiQuery = `(${emissionsQuery} / (${DWTQuery} * SUM(distance_traveled))) * 1000000`;
+    const ciiQuery = `COALESCE((${emissionsQuery} / (${DWTQuery} * SUM(distance_traveled))) * 1000000, 0)`;
     const emissionsQueryEts: string = emissionsQuery;
     const ciiRateQuery = `(${ciiQuery}) / (${requiredQuery})`;
     const ciiDifferenceQuery = `(${ciiQuery}) - (${requiredQuery})`;

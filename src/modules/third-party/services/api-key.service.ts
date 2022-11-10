@@ -139,10 +139,10 @@ export class ApiKeyService {
             ${data.bio_fuel ? `AND bio_fuel = ${data.bio_fuel}` : ''}
             ${data.from_date ? `AND from_date >= '${data.from_date}'` : ''}
             ${data.to_date ? `AND to_date <= '${data.to_date}'` : ''}
-            ${
-          dwt && dwt.length > 0
-            ? `${dwt[0] ? `AND vessel.dwt >= ${dwt[0]}` : ''}
-                    ${dwt[1] > 0 ? `AND vessel.dwt <= ${dwt[1]}` : ''}`
+            ${dwt && dwt.length > 0
+            ? `
+              ${dwt[0] ? `AND vessel.dwt >= ${dwt[0]}` : ''}
+              ${dwt[1] > 0 ? `AND vessel.dwt <= ${dwt[1]}` : ''}`
             : ''
         }
             AND vessel_trip.distance_traveled >= '${data.distanceTravelled}' 
