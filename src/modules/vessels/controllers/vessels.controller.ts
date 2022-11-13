@@ -741,7 +741,9 @@ export class VesselsController {
   async comparisonReport(
     @Query() query: ChartsQueryDto,
     @Body() options: ComparisonReportDto,
+    @Req() req,
   ) {
+    const user = req.user;
     const { reportType } = options;
     let res;
 
@@ -757,6 +759,13 @@ export class VesselsController {
     }
 
     if (reportType === ReportType.CII) {
+      if (options.companyIds?.[0] === 'other_companies') {
+        const userDetail = await this.usersService.findOneById(user.id);
+
+        if (userDetail) {
+          options.companyIds[1] = userDetail.companyId.toString();
+        }
+      }
       res = await this.vesselsService.getVesselsCIIReport(
         options,
         query,
