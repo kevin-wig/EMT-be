@@ -42,6 +42,7 @@ import { SortOrderDto } from '../../../shared/dtos/sort-order.dto';
 import { SearchVesselTripDto } from '../dto/search-vessel-trip.dto';
 import { HasRole } from 'src/modules/users/decorators/user-role.decorator';
 import { UsersService } from '../../users/services/users.service';
+import { InternalServerErrorException } from '@nestjs/common';
 
 @ApiTags('vessel-trip')
 @ApiBearerAuth()
@@ -99,22 +100,27 @@ export class VesselTripsController {
   ) {
     const user = req.user;
 
-    if (user.role !== Roles.SUPER_ADMIN) {
-      if (searchParams.companyId) {
-        searchParams.companyId = null;
+    try {
+      if (user.role !== Roles.SUPER_ADMIN) {
+        if (searchParams.companyId) {
+          const userDetail = await this.usersService.findOneById(user.id);
+          searchParams.companyId = userDetail.companyId.toString();
+        }
       }
+
+      const res = await this.vesselTripsService.getTripsList(
+        paginationParams,
+        sortParams,
+        searchParams,
+      );
+
+      return {
+        message: SUCCESS,
+        data: res,
+      };
+    } catch (e) {
+      throw new InternalServerErrorException(e);
     }
-
-    const res = await this.vesselTripsService.getTripsList(
-      paginationParams,
-      sortParams,
-      searchParams,
-    );
-
-    return {
-      message: SUCCESS,
-      data: res,
-    };
   }
 
   @Get('cii')

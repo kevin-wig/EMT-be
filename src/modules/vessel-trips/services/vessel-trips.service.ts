@@ -115,14 +115,15 @@ export class VesselTripsService {
       WHERE
         1
         ${`AND vessel_trip.voyage_type in ('${voyageType.join("','")}')`}
-        ${vesselId ? `AND vessel = ${vesselId}` : ''}
         ${voyageId ? `AND voyage_id = ${voyageId}` : ''}
         ${journeyType ? `AND vessel_trip.journey_type = '${journeyType}'` : ''}
         ${id ? `AND vessel_trip.id = ${id}` : ''}
         ${fromDate ? `AND '${fromDate}' <= vessel_trip.from_date` : ''}
         ${toDate ? `AND '${toDate}' >= vessel_trip.to_date` : ''}
         ${search ? `AND (vessel_trip.voyage_id LIKE '%${search}%' OR vessel.name LIKE '%${search}%')` : ''}
+        ${vesselId ? `AND vessel = ${vesselId}` : ''}
         ${companyId ? `AND company.id = ${companyId}` : ''}
+        ${(companyId && !vesselId) ? `AND vessel IS NOT NULL` : ''}
         ${originPort ? `AND origin_port.id = ${originPort}` : ''}
         ${destinationPort ? `AND destination_port.id = ${destinationPort}` : ''}
         `;
