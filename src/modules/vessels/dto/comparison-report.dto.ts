@@ -22,7 +22,8 @@ export class ComparisonReportDto {
   @ApiProperty()
   @IsOptional()
   @IsArray()
-  companyIds: string[];;
+  @Transform((params) => Array.isArray(params.value) ? params.value : [params.value])
+  companyIds: string[];
 
   @ApiProperty()
   @IsOptional()
@@ -38,12 +39,12 @@ export class ComparisonReportDto {
   @ApiProperty()
   @IsOptional()
   @IsArray()
-  fleets: string[];;
+  fleets: string[];
 
   @ApiProperty()
   @IsOptional()
   @IsArray()
-  vesselIds: string[];;
+  vesselIds: string[];
 
   @ApiProperty()
   @IsOptional()

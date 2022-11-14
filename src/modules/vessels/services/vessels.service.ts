@@ -391,15 +391,20 @@ export class VesselsService {
 
     const currentDate = new Date().toISOString();
 
+    let companyQuery = '';
+    if (companyIds) {
+      if (companyIds[0] === 'other_companies') {
+        companyQuery = `vessel.company_id != ${companyIds[1] || 0} and vessel.company_id IS NOT NULL`;
+      } else {
+        companyQuery = `vessel.company_id in ('${companyIds.join("','")}')`;
+      }
+    }
+
     return `
     WHERE
       1
       ${vesselIds ? `AND vessel.id in ('${vesselIds.join("','")}')` : ''}
-      ${
-        companyIds
-          ? `AND vessel.company_id in ('${companyIds.join("','")}')`
-          : ''
-      }
+      ${companyQuery ? `AND ${companyQuery}` : ''}
       ${
         fleets && fleets.length > 0
           ? `AND vessel.fleet in ('${fleets.join("','")}')`
