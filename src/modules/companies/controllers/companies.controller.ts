@@ -444,10 +444,12 @@ export class CompaniesController {
   ) {
     await this.isEnableToAccessToCompanyData(req.user, +id);
 
-    const { year, month } = query;
+    const { year, month, isVoyage } = query;
     let level: GraphLevel;
 
-    if (!year && !month) {
+    if (isVoyage) {
+      level = GraphLevel.VOYAGE;
+    } else if (!year && !month) {
       level = GraphLevel.YEAR;
     } else if (year && !month) {
       level = GraphLevel.MONTH;
@@ -581,10 +583,12 @@ export class CompaniesController {
   ) {
     await this.isEnableToAccessToCompanyData(req.user, +id);
 
-    const { year, month } = query;
+    const { year, month, isVoyage } = query;
     let level: GraphLevel;
 
-    if (!year && !month) {
+    if (isVoyage) {
+      level = GraphLevel.VOYAGE;
+    } else if (!year && !month) {
       level = GraphLevel.YEAR;
     } else if (year && !month) {
       level = GraphLevel.MONTH;

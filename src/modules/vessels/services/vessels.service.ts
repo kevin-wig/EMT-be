@@ -1427,7 +1427,7 @@ export class VesselsService {
           AND vessel.company_id = ${companyId}
           AND vessel_trip.journey_type = 'CII'
           ${level === GraphLevel.MONTH ? `AND year_tbl.year=${year}` : ''}
-          ${level === GraphLevel.VOYAGE ? `AND month_tbl.month=${month}` : ''}
+          ${(level === GraphLevel.VOYAGE && month) ? `AND month_tbl.month=${month}` : ''}
           AND (${aggregateQuery})
         GROUP BY vessel.id, ${
           level !== GraphLevel.VOYAGE
@@ -1572,7 +1572,7 @@ export class VesselsService {
         AND vessel_trip.journey_type = 'CII'
         AND vessel_type.vessel_type = '${type}'
         ${level === GraphLevel.MONTH ? `AND year_tbl.year=${year}` : ''}
-        ${level === GraphLevel.VOYAGE ? `AND month_tbl.month=${month}` : ''}
+        ${(level === GraphLevel.VOYAGE && month) ? `AND month_tbl.month=${month}` : ''}
         AND (${aggregateQuery})
       GROUP BY vessel.id, ${
         level !== GraphLevel.VOYAGE
