@@ -87,7 +87,7 @@ export class ApiKeyService {
 
 
   public async getVesselCIIData(@Req() request: Request, data: GetCIIDataDto) {
-    const { ciiQuery, categoryQuery, requiredQuery } = this.vesselService.generateCiiQueryString(0, [], data);
+    const { ciiQuery, ciiRateQuery, categoryQuery, requiredQuery } = this.vesselService.generateCiiQueryString(0, [], data);
 
     const { dwt, imo } = data;
 
@@ -110,13 +110,12 @@ export class ApiKeyService {
       return await this.vesselTripRepository.manager.query(`
         SELECT
           ${ciiQuery} AS cii,
+          ${ciiRateQuery} AS ciiRequired,
           ${categoryQuery} AS category,
           ${ABound} * (${requiredQuery}) AS aBound,
           ${BBound} * (${requiredQuery}) AS bBound,
           ${CBound} * (${requiredQuery}) AS cBound,
-          ${DBound} * (${requiredQuery}) AS dBound,
-          from_date as fromDate,
-          to_date as toDate
+          ${DBound} * (${requiredQuery}) AS dBound
         FROM vessel_trip
         ${this.vesselService.generateLeftJoinTable([
         'vessel',
@@ -136,8 +135,6 @@ export class ApiKeyService {
           ${data.lpg_pp ? `AND lpg_pp = ${data.lpg_pp}` : ''}
           ${data.lpg_bt ? `AND lpg_bt = ${data.lpg_bt}` : ''}
           ${data.bio_fuel ? `AND bio_fuel = ${data.bio_fuel}` : ''}
-          ${data.from_date ? `AND from_date >= '${data.from_date}'` : ''}
-          ${data.to_date ? `AND to_date <= '${data.to_date}'` : ''}
           ${dwt && dwt.length > 0
           ? `
             ${dwt[0] ? `AND vessel.dwt >= ${dwt[0]}` : ''}

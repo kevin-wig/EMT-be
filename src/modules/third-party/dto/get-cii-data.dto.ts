@@ -54,12 +54,4 @@ export class GetCIIDataDto {
   @IsOptional()
   @ApiProperty()
   bio_fuel: number;
-
-  @IsOptional()
-  @ApiProperty({ required: false })
-  from_date: Date;
-
-  @IsOptional()
-  @ApiProperty({ required: false })
-  to_date: Date;
 }
