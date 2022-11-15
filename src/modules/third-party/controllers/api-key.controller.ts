@@ -76,7 +76,7 @@ export class ApiKeyController {
 
   @Post('vessels/cii')
   @ApiOperation({
-    description: 'The route used to get CII details for the authorized user',
+    description: 'The route used to get CII Attained details for the authorized user',
   })
   @ApiHeader({
     name: 'x-api-key',
