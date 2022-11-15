@@ -109,7 +109,7 @@ export class ApiKeyService {
     if (onBoardingLink) {
       return await this.vesselTripRepository.manager.query(`
         SELECT
-          ${ciiQuery} AS cii,
+          ${ciiQuery} AS ciiAttained,
           ${ciiRateQuery} AS ciiRequired,
           ${categoryQuery} AS category,
           ${ABound} * (${requiredQuery}) AS aBound,
