@@ -222,6 +222,7 @@ export class CompaniesService {
           .find((item) => item.id === vessel.id)
           .data.push({
             key: vessel.key,
+            name: vessel.voyageId,
             cii: vessel.cii,
             category: vessel.category,
           });
@@ -230,7 +231,12 @@ export class CompaniesService {
           id: vessel.id,
           name: vessel.name,
           data: [
-            { key: vessel.key, cii: vessel.cii, category: vessel.category },
+            {
+              key: vessel.key,
+              name: vessel.voyageId,
+              cii: vessel.cii,
+              category: vessel.category
+            },
           ],
         });
       }
@@ -282,13 +288,18 @@ export class CompaniesService {
           .find((item) => vessel.id === item.id)
           .data.push({
             key: vessel.key,
+            name: vessel.voyageId,
             category: vessel.category,
           });
       } else {
         result.push({
           id: vessel.id,
           name: vessel.name,
-          data: [{ key: vessel.key, category: vessel.category }],
+          data: [{
+            key: vessel.key,
+            name: vessel.voyageId,
+            category: vessel.category,
+          }],
         });
       }
       return result;

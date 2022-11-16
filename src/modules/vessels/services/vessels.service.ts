@@ -110,14 +110,14 @@ export class VesselsService {
         .join(' + ');
       emissionsQuery = `SUM(${fuelCalc})`;
     } else {
-      const emission = `(COALESCE(mgo, ${data?.mgo || 0}) * 3.206 + COALESCE(lfo, ${data?.lfo || 0}) * 3.151 + COALESCE(hfo, ${data?.hfo || 0}) * 3.114 + COALESCE(vlsfo, 0) * 3.114 + COALESCE(lng, 0) * 2.75 + COALESCE(vlsfo_ad, ${data?.vlsfo_ad || 0}) * 3.151 + COALESCE(vlsfo_xb, ${data?.vlsfo_xb || 0}) * 3.206 + COALESCE(vlsfo_ek, ${data?.vlsfo_ek || 0}) * 3.114 + COALESCE(lpg_pp, ${data?.lpg_pp || 0}) * 3 + COALESCE(lpg_bt, ${data?.lpg_bt || 0}) * 3.03 + COALESCE(bio_fuel, ${data?.bio_fuel || 0}) * 2.8)`;
+      const emission = `(COALESCE(mgo, ${data?.mgo || null}) * 3.206 + COALESCE(lfo, ${data?.lfo || null}) * 3.151 + COALESCE(hfo, ${data?.hfo || null}) * 3.114 + COALESCE(vlsfo, 0) * 3.114 + COALESCE(lng, 0) * 2.75 + COALESCE(vlsfo_ad, ${data?.vlsfo_ad || null}) * 3.151 + COALESCE(vlsfo_xb, ${data?.vlsfo_xb || null}) * 3.206 + COALESCE(vlsfo_ek, ${data?.vlsfo_ek || null}) * 3.114 + COALESCE(lpg_pp, ${data?.lpg_pp || null}) * 3 + COALESCE(lpg_bt, ${data?.lpg_bt || null}) * 3.03 + COALESCE(bio_fuel, ${data?.bio_fuel || null}) * 2.8)`;
       emissionsQuery = `COALESCE(SUM(${emission}), ${emission})`;
     }
 
     const vesselTypeFactorQuery = `IF(COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1})) = 'Chemical Tanker' OR COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1})) = 'Oil Tanker', 5247, IF(COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1})) = 'Bulk Carrier', 4745, 0))`;
     const vesselTypePowQuery = `IF(COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1})) = 'Chemical Tanker' OR COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1})) = 'Oil Tanker', -0.61, IF(COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1})) = 'Bulk Carrier', -0.622, -0.61))`;
-    const target2019Query = `COALESCE(POW(COALESCE(vessel.dwt, ${data?.dwt?.[0] || null}), 0), ${vesselTypePowQuery}) *  ${vesselTypeFactorQuery}`;
-    const requiredQuery = `COALESCE(
+    const target2019Query = `POW(COALESCE(vessel.dwt, ${data?.dwt?.[0] || null}), ${vesselTypePowQuery}) *  ${vesselTypeFactorQuery}`;
+    const requiredQuery = `
       CASE
         WHEN ${year || 'year_tbl.year'} = 2019 THEN ${target2019Query}
         WHEN ${year || 'year_tbl.year'} = 2020 THEN ${target2019Query} * 0.99
@@ -129,7 +129,7 @@ export class VesselsService {
         WHEN ${year || 'year_tbl.year'} = 2026 THEN ${target2019Query} * 0.89
         ELSE ${target2019Query} * 0.89
       END
-    , 0)`;
+    `;
     const DWTQuery = `IF(COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1})) = 'Bulk Carrier', LEAST(COALESCE(vessel.dwt, ${data?.dwt?.[0] || 0}), 279000), COALESCE(vessel.dwt, ${data?.dwt?.[0] || 0}))`;
     const ciiQuery = `(${emissionsQuery} / (${DWTQuery} * COALESCE(SUM(distance_traveled), ${data?.distanceTravelled || 0}))) * 1000000`;
     const emissionsQueryEts: string = emissionsQuery;
@@ -1412,7 +1412,7 @@ export class VesselsService {
           vessel.name,
           ${level === GraphLevel.YEAR ? 'year_tbl.year AS "key",' : ''}
           ${level === GraphLevel.MONTH ? 'month_tbl.month AS "key",' : ''}
-          ${level === GraphLevel.VOYAGE ? 'vessel_trip.id AS "key",' : ''}
+          ${level === GraphLevel.VOYAGE ? 'vessel_trip.id AS "key", vessel_trip.voyage_id as voyageId,' : ''}
           ${ciiQuery} / ${requiredQuery} AS cii,
           ${categoryQuery} AS category
         FROM vessel_trip
@@ -1434,6 +1434,7 @@ export class VesselsService {
             ? `${level.toLowerCase()}_tbl.${level.toLowerCase()}`
             : 'vessel_trip.id'
         }
+        ORDER BY from_date
     `);
   }
 
@@ -1558,7 +1559,7 @@ export class VesselsService {
         vessel.name,
         ${level === GraphLevel.YEAR ? 'year_tbl.year AS "key",' : ''}
         ${level === GraphLevel.MONTH ? 'month_tbl.month AS "key",' : ''}
-        ${level === GraphLevel.VOYAGE ? 'vessel_trip.id AS "key",' : ''}
+        ${level === GraphLevel.VOYAGE ? 'vessel_trip.id AS "key", vessel_trip.voyage_id as voyageId,' : ''}
         ${categoryQuery} AS category
       FROM vessel
       ${this.generateLeftJoinTable([
@@ -1579,6 +1580,7 @@ export class VesselsService {
           ? `${level.toLowerCase()}_tbl.${level.toLowerCase()}`
           : 'vessel_trip.id'
       }
+      ORDER BY from_date
     `);
   }
 
