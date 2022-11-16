@@ -110,7 +110,7 @@ export class VesselsService {
         .join(' + ');
       emissionsQuery = `SUM(${fuelCalc})`;
     } else {
-      const emission = `(COALESCE(mgo, ${data?.mgo || null}) * 3.206 + COALESCE(lfo, ${data?.lfo || null}) * 3.151 + COALESCE(hfo, ${data?.hfo || null}) * 3.114 + COALESCE(vlsfo, 0) * 3.114 + COALESCE(lng, 0) * 2.75 + COALESCE(vlsfo_ad, ${data?.vlsfo_ad || null}) * 3.151 + COALESCE(vlsfo_xb, ${data?.vlsfo_xb || null}) * 3.206 + COALESCE(vlsfo_ek, ${data?.vlsfo_ek || null}) * 3.114 + COALESCE(lpg_pp, ${data?.lpg_pp || null}) * 3 + COALESCE(lpg_bt, ${data?.lpg_bt || null}) * 3.03 + COALESCE(bio_fuel, ${data?.bio_fuel || null}) * 2.8)`;
+      const emission = `(COALESCE(mgo, ${data?.mgo || 0}) * 3.206 + COALESCE(lfo, ${data?.lfo || 0}) * 3.151 + COALESCE(hfo, ${data?.hfo || 0}) * 3.114 + COALESCE(vlsfo, 0) * 3.114 + COALESCE(lng, 0) * 2.75 + COALESCE(vlsfo_ad, ${data?.vlsfo_ad || 0}) * 3.151 + COALESCE(vlsfo_xb, ${data?.vlsfo_xb || 0}) * 3.206 + COALESCE(vlsfo_ek, ${data?.vlsfo_ek || 0}) * 3.114 + COALESCE(lpg_pp, ${data?.lpg_pp || 0}) * 3 + COALESCE(lpg_bt, ${data?.lpg_bt || 0}) * 3.03 + COALESCE(bio_fuel, ${data?.bio_fuel || 0}) * 2.8)`;
       emissionsQuery = `COALESCE(SUM(${emission}), ${emission})`;
     }
 
