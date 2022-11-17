@@ -105,7 +105,9 @@ export class VesselsService {
     let emissionsQuery: string;
 
     if (fuelTypes && fuelTypes.length > 0) {
-      const fuelCalc = fuelTypes
+      const types = fuelTypes.map((type) => type.toUpperCase());
+      const realFuelTypes = Object.keys(FuelFactors).filter((typeName) => types.some((type) => typeName.includes(type)));
+      const fuelCalc = realFuelTypes
         .map((type) => `${type.toLowerCase()} * ${FuelFactors[type] || 0}`)
         .join(' + ');
       emissionsQuery = `SUM(${fuelCalc})`;
