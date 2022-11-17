@@ -104,12 +104,14 @@ export class ApiKeyService {
         ...(vessel ? { company_id: vessel.companyId } : {}),
         imo,
       },
+      relations: ['company']
     });
+    const limitVesselOnboarding = onBoardingLink?.company?.limitVesselOnboarding;
 
     if (onBoardingLink) {
       return await this.vesselTripRepository.manager.query(`
         SELECT
-          ${ciiQuery} AS ciiAttained,
+          ${limitVesselOnboarding ? `${ciiQuery} AS ciiAttained,` : ''}
           ${ciiRateQuery} AS ciiRequired,
           ${categoryQuery} AS category,
           ${ABound} * (${requiredQuery}) AS aBound,
