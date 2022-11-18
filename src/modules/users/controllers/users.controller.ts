@@ -8,7 +8,7 @@ import {
   Patch,
   Post,
   Query,
-  Req,
+  Req, UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -122,8 +122,16 @@ export class UsersController {
   })
   @ApiResponse({ status: 200, type: SuccessUserResponseDto })
   @ApiResponse({ status: 400, type: FailedResponseDto })
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string, @Req() req: IRequest) {
+    const me = req.user;
     const res = await this.usersService.findOneById(+id);
+    if (me.role !== Roles.SUPER_ADMIN) {
+      const meDetail = await this.usersService.findOneById(+me.id);
+      if (meDetail?.companyId !== res?.companyId) {
+        throw new UnauthorizedException('You are not authorized to get this user');
+      }
+    }
+
     if (res) {
       return {
         message: SUCCESS,

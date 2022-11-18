@@ -133,12 +133,10 @@ export class UsersService {
         .setParameter('search', `%${search}%`);
     }
 
-    if (user.role === Roles.COMPANY_EDITOR || user.role === Roles.SUPER_ADMIN) {
-      if (companyId) {
-        queryBuilder.andWhere('company.id = :companyId', {
-          companyId,
-        });
-      }
+    if (companyId) {
+      queryBuilder.andWhere('company.id = :companyId', {
+        companyId,
+      });
     }
 
     const totalCount = await new SelectQueryBuilder(queryBuilder).getCount();
