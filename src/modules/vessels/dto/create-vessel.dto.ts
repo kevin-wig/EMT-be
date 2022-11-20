@@ -63,7 +63,7 @@ export class CreateVesselDto {
   @ApiProperty()
   dateOfBuilt: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @ApiProperty()
   eedi: number;
 
