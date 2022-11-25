@@ -9,7 +9,7 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { User } from '../entities/user.entity';
 import { UserRole } from '../entities/user-role.entity';
-import { CHANGE_PASSWORD_URL, EMAIL_VERIFY_URL } from '../users.constants';
+import { RESET_PASSWORD_URL, EMAIL_VERIFY_URL } from '../users.constants';
 import { ISearchQuery } from '../users.types';
 import { IPayload } from '../../auth/auth.types';
 import { Company } from '../../companies/entities/company.entity';
@@ -261,7 +261,7 @@ export class UsersService {
     });
 
     const mailService = new MessagingService();
-    const url = `${CHANGE_PASSWORD_URL}/${savedToken.token}`;
+    const url = `${RESET_PASSWORD_URL}/${savedToken.token}`;
 
     if (existingUser.authenticationMethod === AuthMethod.MOBILE) {
       // TODO: need to implemented to send SMS
