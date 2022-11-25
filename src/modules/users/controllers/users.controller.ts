@@ -20,7 +20,7 @@ import {
 } from '@nestjs/swagger';
 
 import { UpdateUserDto } from '../dto/update-user.dto';
-import { CreateUserDto } from '../dto/create-user.dto';
+import { CreateUserDto, EmailDto } from '../dto/create-user.dto';
 import { HasRole } from '../decorators/user-role.decorator';
 import { UsersService } from '../services/users.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
@@ -99,7 +99,7 @@ export class UsersController {
     };
   }
 
-  @Get('request-change-password')
+  @Post('request-change-password')
   @ApiOperation({
     description: 'The route used to send request to change password',
   })
@@ -107,9 +107,9 @@ export class UsersController {
   @ApiResponse({ status: 400, type: FailedResponseDto })
   @HasRole(Roles.SUPER_ADMIN)
   // TODO: implement change password logic
-  async requestChangePassword(@Req() req: IRequest) {
+  async requestChangePassword(@Body() { email }: EmailDto, @Req() req: IRequest) {
     const user = req.user;
-    await this.usersService.requestChangePassword(user);
+    await this.usersService.requestChangePassword(email);
 
     return {
       message: SUCCESS,
