@@ -1246,6 +1246,9 @@ export class VesselsService {
       GROUP BY ${
         mode === GraphLevel.VOYAGE ? 'vessel_trip.voyage_id' : 'year_tbl.year'
       }
+      ${
+        mode === GraphLevel.VOYAGE ? '' : 'ORDER BY year_tbl.year'
+      }
     `);
   }
 
