@@ -243,9 +243,9 @@ export class UsersService {
     return this.usersRepository.delete(id);
   }
 
-  async requestChangePassword(user: IPayload) {
+  async requestChangePassword(email: string) {
     const existingUser: User = await this.usersRepository.findOne(
-      { email: user.email },
+      { email },
       { relations: ['userRole'] },
     );
 

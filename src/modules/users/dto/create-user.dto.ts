@@ -3,12 +3,14 @@ import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
 
 import { AuthMethod } from '../../../shared/constants/global.constants';
 
-export class CreateUserDto {
+export class EmailDto {
   @ApiProperty()
   @IsEmail()
   @IsNotEmpty()
   email: string;
+}
 
+export class CreateUserDto extends EmailDto {
   @ApiProperty()
   @IsOptional()
   password: string;
