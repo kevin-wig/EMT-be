@@ -83,10 +83,11 @@ export class VesselsController {
   @ApiBody({ type: CreateVesselDto })
   @ApiResponse({ status: 201, type: VesselResponseDto })
   @ApiResponse({ status: 400, type: FailedResponseDto })
-  @HasRole(Roles.SUPER_ADMIN /*, Roles.COMPANY_EDITOR*/)
-  async create(@Body() createVesselDto: { [key: string]: CreateVesselDto }) {
+  @HasRole(Roles.SUPER_ADMIN , Roles.COMPANY_EDITOR)
+  async create(@Body() createVesselDto: { [key: string]: CreateVesselDto }, @Req() req: IRequest) {
+    const user = req.user;
     return this.vesselsService
-      .createVessels(Object.values(createVesselDto))
+      .createVessels(Object.values(createVesselDto), user)
       .then((res) => ({
         message: SUCCESS,
         data: res,

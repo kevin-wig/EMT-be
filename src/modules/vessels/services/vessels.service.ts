@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Workbook } from 'exceljs';
@@ -850,7 +850,9 @@ export class VesselsService {
     }, {});
   }
 
-  async createVessels(createVesselsDto: any[]) {
+  async createVessels(createVesselsDto: any[], userDto: IPayload) {
+    const isSuperAdmin = userDto.role === Roles.SUPER_ADMIN;
+    const user = await this.userRepository.findOne(userDto.id);
     const vessels = [];
 
     for (let i = 0; i < createVesselsDto.length; i++) {
@@ -863,6 +865,12 @@ export class VesselsService {
         email,
         ...createData
       } = createVesselsDto[i];
+
+      const companyData = await this.getCompanyByName(company, email);
+
+      if (!isSuperAdmin && companyData?.id !== user?.companyId) {
+        throw new UnauthorizedException(`You can't create vessel for other companies`);
+      }
 
       const vesselByImo = await this.findBy({ imo });
 
@@ -880,7 +888,6 @@ export class VesselsService {
 
       const fleetData = await this.getFleetByName(fleet);
       const vesselType = await this.getVesselTypeByName(vessel_type);
-      const companyData = await this.getCompanyByName(company, email);
 
       const parsedData = this.parseVesselData({
         ...createData,
