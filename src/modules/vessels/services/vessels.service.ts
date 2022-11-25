@@ -1703,7 +1703,7 @@ export class VesselsService {
       ${this.generateLeftJoinTable([
         'vessel_trip',
         'vessel_type',
-        'year_tbl',
+        `year_tbl:${year}`,
         'month_tbl_group_by',
       ])}
       ${whereQuery}
