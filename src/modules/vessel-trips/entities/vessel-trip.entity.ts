@@ -18,7 +18,7 @@ export class VesselTrip {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Vessel, (vessel) => vessel.id, { onDelete: 'SET NULL' })
+  @ManyToOne(() => Vessel, (vessel) => vessel.id, { onDelete: 'CASCADE' })
   vessel: Vessel;
 
   @OneToMany(() => Grade, (grade) => grade.journey, { onDelete: 'SET NULL' })

@@ -19,7 +19,7 @@ export class Fleet {
   @Column({ unique: true })
   name: string;
 
-  @ManyToOne(() => Company, (company) => company.id, { onDelete: 'SET NULL' })
+  @ManyToOne(() => Company, (company) => company.id, { onDelete: 'CASCADE' })
   company: number;
 
   @OneToMany(() => Vessel, (vessel) => vessel.fleet)

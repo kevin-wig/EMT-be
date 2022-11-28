@@ -31,7 +31,7 @@ export class Vessel {
   @Column({ nullable: true })
   companyId: number;
 
-  @ManyToOne(() => Company, (company) => company.id, { onDelete: 'SET NULL' })
+  @ManyToOne(() => Company, (company) => company.id, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'company_id' })
   company: Company;
 
