@@ -149,8 +149,15 @@ export class UsersController {
   @ApiBody({ type: CreateUserDto })
   @ApiResponse({ status: 200, type: SuccessUserResponseDto })
   @ApiResponse({ status: 400, type: FailedResponseDto })
-  @HasRole(Roles.SUPER_ADMIN)
-  create(@Body() createUser: CreateUserDto) {
+  @HasRole(Roles.SUPER_ADMIN, Roles.COMPANY_EDITOR)
+  async create(@Body() createUser: CreateUserDto, @Req() req: IRequest) {
+    const me = req.user;
+    if (me.role === Roles.COMPANY_EDITOR) {
+      const meDetail = await this.usersService.findOneById(me.id);
+      if (createUser.companyId !== meDetail.companyId) {
+        throw new UnauthorizedException('You cannot create user for other companies!')
+      }
+    }
     return this.usersService
       .create(createUser)
       .then((res) => ({
