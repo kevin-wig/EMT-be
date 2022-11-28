@@ -31,7 +31,7 @@ export class Vessel {
   @Column({ nullable: true })
   companyId: number;
 
-  @ManyToOne(() => Company, (company) => company.id, { onDelete: 'SET NULL' })
+  @ManyToOne(() => Company, (company) => company.id, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'company_id' })
   company: Company;
 
@@ -44,10 +44,10 @@ export class Vessel {
   @JoinColumn({ name: 'vessel_type_id' })
   vesselType: VesselType;
 
-  @ManyToOne(() => Fleet, (fleet) => fleet.id)
+  @ManyToOne(() => Fleet, (fleet) => fleet.id, { onDelete: 'SET NULL' })
   fleet: number;
 
-  @OneToMany(() => VesselTrip, (trip) => trip.vessel, { onDelete: 'SET NULL' })
+  @OneToMany(() => VesselTrip, (trip) => trip.vessel)
   trip: VesselTrip[];
 
   @Column({ type: 'decimal', nullable: true, precision: 25, scale: 10 })

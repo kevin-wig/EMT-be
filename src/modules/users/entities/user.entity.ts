@@ -41,7 +41,7 @@ export class User {
   @Column({ default: false })
   isActive: boolean;
 
-  @ManyToOne(() => UserRole, (userRole) => userRole.id)
+  @ManyToOne(() => UserRole, (userRole) => userRole.id, { onDelete: 'SET NULL' })
   userRole: number;
 
   @Column({
@@ -54,7 +54,7 @@ export class User {
   @Column({ nullable: true })
   companyId: number;
 
-  @ManyToOne(() => Company, (company) => company.id, { onDelete: 'SET NULL' })
+  @ManyToOne(() => Company, (company) => company.id, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'company_id' })
   company: Company;
 }
