@@ -10,6 +10,7 @@ import {
   Query,
   Req,
   Res,
+  UnauthorizedException,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -43,6 +44,7 @@ import { SearchVesselTripDto } from '../dto/search-vessel-trip.dto';
 import { HasRole } from 'src/modules/users/decorators/user-role.decorator';
 import { UsersService } from '../../users/services/users.service';
 import { InternalServerErrorException } from '@nestjs/common';
+import { VesselsService } from '../../vessels/services/vessels.service';
 
 @ApiTags('vessel-trip')
 @ApiBearerAuth()
@@ -51,6 +53,7 @@ import { InternalServerErrorException } from '@nestjs/common';
 export class VesselTripsController {
   constructor(
     private readonly vesselTripsService: VesselTripsService,
+    private readonly vesselsService: VesselsService,
     private readonly usersService: UsersService,
   ) { }
 
@@ -79,7 +82,19 @@ export class VesselTripsController {
   @ApiResponse({ status: 200, type: SuccessResponseDto })
   @ApiResponse({ status: 400, type: FailedResponseDto })
   @HasRole(Roles.SUPER_ADMIN, Roles.COMPANY_EDITOR)
-  async createOne(@Body() createVesselTrip: CreateVesselTripDto, @Query() query) {
+  async createOne(
+    @Body() createVesselTrip: CreateVesselTripDto,
+    @Query() query,
+    @Req() req: IRequest
+  ) {
+    const me = req.user;
+    if (me.role === Roles.COMPANY_EDITOR) {
+      const meDetail = await this.usersService.findOneById(me.id);
+      const vessel = await this.vesselsService.findOne(createVesselTrip.vessel);
+      if (vessel.companyId !== meDetail.companyId) {
+        throw new UnauthorizedException('You cannot create vessel trips for other companies!')
+      }
+    }
     await this.vesselTripsService.create(createVesselTrip, query.aggregate);
     return {
       message: SUCCESS,
