@@ -15,7 +15,7 @@ export class Grade {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => VesselTrip, (trip) => trip.id)
+  @ManyToOne(() => VesselTrip, (trip) => trip.id, { onDelete: 'CASCADE' })
   journey: VesselTrip;
 
   @Column({

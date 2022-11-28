@@ -41,7 +41,7 @@ export class User {
   @Column({ default: false })
   isActive: boolean;
 
-  @ManyToOne(() => UserRole, (userRole) => userRole.id)
+  @ManyToOne(() => UserRole, (userRole) => userRole.id, { onDelete: 'SET NULL' })
   userRole: number;
 
   @Column({

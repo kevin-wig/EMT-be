@@ -9,6 +9,6 @@ export class VesselType {
   @Column({ nullable: true })
   vessel_type: string;
 
-  @OneToMany(() => Vessel, (vessel) => vessel.company, { onDelete: 'SET NULL' })
+  @OneToMany(() => Vessel, (vessel) => vessel.vesselType)
   vessels: Vessel[];
 }

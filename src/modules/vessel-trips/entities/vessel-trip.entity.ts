@@ -21,7 +21,7 @@ export class VesselTrip {
   @ManyToOne(() => Vessel, (vessel) => vessel.id, { onDelete: 'CASCADE' })
   vessel: Vessel;
 
-  @OneToMany(() => Grade, (grade) => grade.journey, { onDelete: 'SET NULL' })
+  @OneToMany(() => Grade, (grade) => grade.journey)
   grades: Grade[];
 
   @Column()

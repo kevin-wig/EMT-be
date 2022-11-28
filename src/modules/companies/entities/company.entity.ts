@@ -35,13 +35,13 @@ export class Company {
   @Column()
   country: string;
 
-  @OneToMany(() => User, (user) => user.company, { onDelete: 'SET NULL' })
+  @OneToMany(() => User, (user) => user.company)
   users: User[];
 
-  @OneToMany(() => Vessel, (vessel) => vessel.company, { onDelete: 'SET NULL' })
+  @OneToMany(() => Vessel, (vessel) => vessel.company)
   vessels: Vessel[];
 
-  @OneToMany(() => Fleet, (fleet) => fleet.company, { onDelete: 'SET NULL' })
+  @OneToMany(() => Fleet, (fleet) => fleet.company)
   fleets: Fleet[];
 
   @CreateDateColumn()
@@ -53,10 +53,6 @@ export class Company {
   @Column({ default: false })
   limitVesselOnboarding: boolean;
 
-  @OneToMany(
-    () => VesselOnboardingLinks,
-    (vesselOnboardingLinks) => vesselOnboardingLinks.company,
-    { onDelete: 'SET NULL' },
-  )
+  @OneToMany(() => VesselOnboardingLinks, (vesselOnboardingLinks) => vesselOnboardingLinks.company)
   vesselOnboardingLinks: VesselOnboardingLinks[];
 }
