@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, ValidateIf } from 'class-validator';
 
 import { AuthMethod } from '../../../shared/constants/global.constants';
 
@@ -31,6 +31,7 @@ export class CreateUserDto extends EmailDto {
   authenticationMethod: AuthMethod;
 
   @ApiProperty()
+  @ValidateIf((dto) => dto.userRole !== 1)
   @IsNotEmpty()
   companyId: number;
 
