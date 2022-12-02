@@ -1318,6 +1318,7 @@ export class VesselsService {
 
     const whereQuery = `
         list.name LIKE '%${search ? search : ''}%'
+        AND list.cii IS NOT NULL
         ${companyId ? `AND list.companyId = ${companyId}` : ''}
         ${fleet ? `AND list.fleetId = ${fleet}` : ''}
         ${category ? `AND list.category = '${category}'` : ''}
