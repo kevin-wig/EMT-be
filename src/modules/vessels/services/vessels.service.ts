@@ -503,6 +503,7 @@ export class VesselsService {
           'fleet',
           `year_tbl:${year}`,
         ])}
+        WHERE vessel_trip.journey_type = 'CII'
         GROUP BY vessel.id, year_tbl.year
         ORDER BY year_tbl.year DESC
       ) AS res
