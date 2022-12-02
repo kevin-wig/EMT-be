@@ -20,6 +20,8 @@ import {
   IsBoolean,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
+import { UniqueValueValidator } from '../../../shared/validators/unique-value.validator';
+import { VesselTrip } from '../entities/vessel-trip.entity';
 
 class GradeDto {
   @Transform((params) => +params.value)
@@ -75,6 +77,7 @@ class ValidateGrade implements ValidatorConstraintInterface {
 export class CreateVesselTripDto {
   @IsString()
   @ApiProperty()
+  @Validate(UniqueValueValidator, [VesselTrip], { message: 'Voyage name already exists' })
   voyageId: string;
 
   @Transform((params) => +params.value)

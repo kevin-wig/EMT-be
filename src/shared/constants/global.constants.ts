@@ -84,3 +84,18 @@ export const ABound_BC = 0.86;
 export const BBound_BC = 0.94;
 export const CBound_BC = 1.06;
 export const DBound_BC = 1.18;
+
+// SQL Query Operators
+export const OPERATOR_EQUAL = '=';
+export const OPERATOR_NOT_EQUAL = '!=';
+export const OPERATOR_IS = 'IS';
+export const OPERATOR_IN = 'IN';
+export const OPERATOR_NOT_IN = 'NOT IN';
+export const OPERATOR_LIKE = 'LIKE';
+export const OPERATOR_INSENSITIVE_LIKE = 'ILIKE';
+export const OPERATOR_BIGGER = '>';
+export const OPERATOR_LITTLE = '<';
+export const OPERATOR_BIGGER_OR_EQUAL = '>=';
+export const OPERATOR_LITTLE_OR_EQUAL = '<=';
+export const OPERATOR_CONTAINS = '@>';
+export const OPERATOR_OVERLAPS = '&&';

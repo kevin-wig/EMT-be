@@ -100,7 +100,7 @@ export class VesselTrip {
   @Column({ type: 'decimal', nullable: true, precision: 25, scale: 10 })
   bunkerCost: number;
 
-  @Column()
+  @Column({ unique: true, nullable: false })
   voyageId: string;
 
   @Column({ default: false })
