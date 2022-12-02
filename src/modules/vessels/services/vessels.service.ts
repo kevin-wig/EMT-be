@@ -519,6 +519,9 @@ export class VesselsService {
         GROUP BY vessel.id
       ) AS vessel2019_tbl ON vessel2019_tbl.vessel2019Id = res.id
       LEFT JOIN eu_ets ON eu_ets.vessel = res.id AND eu_ets.year = res.year
+
+      WHERE res.cii IS NOT NULL
+
       GROUP BY res.id
     `;
   }
@@ -1318,6 +1321,7 @@ export class VesselsService {
 
     const whereQuery = `
         list.name LIKE '%${search ? search : ''}%'
+        AND list.cii IS NOT NULL
         ${companyId ? `AND list.companyId = ${companyId}` : ''}
         ${fleet ? `AND list.fleetId = ${fleet}` : ''}
         ${category ? `AND list.category = '${category}'` : ''}
