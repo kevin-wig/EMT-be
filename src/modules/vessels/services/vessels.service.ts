@@ -1184,6 +1184,7 @@ export class VesselsService {
       WHERE
         vessel_trip.journey_type = 'CII'
         AND vessel = ${id}
+        AND year_tbl.year = ${year}
       GROUP BY year_tbl.year
     `,
       )
