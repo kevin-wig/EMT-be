@@ -1712,6 +1712,7 @@ export class VesselsService {
         'month_tbl_group_by',
       ])}
       ${whereQuery}
+        AND vessel_trip.journey_type = 'CII'
         AND year = ${year || new Date().getFullYear()}
         ${level === GraphLevel.MONTH ? `AND year_tbl.year=${graphYear}` : ''}
         ${(level === GraphLevel.VOYAGE && month) ? `AND month_tbl.month=${month}` : ''}
