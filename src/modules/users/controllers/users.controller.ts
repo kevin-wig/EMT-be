@@ -5,7 +5,7 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
+  Put,
   Post,
   Query,
   Req, UnauthorizedException,
@@ -169,7 +169,7 @@ export class UsersController {
       });
   }
 
-  @Patch(':id')
+  @Put(':id')
   @ApiOperation({
     description: 'The route used to update user',
   })
