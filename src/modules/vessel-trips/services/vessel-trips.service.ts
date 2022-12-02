@@ -195,7 +195,7 @@ export class VesselTripsService {
     const fromPort: any = await this.getPortIdByName(originPort);
     const toPort: any = await this.getPortIdByName(destinationPort);
 
-    if (await this.isVesselInUse(createVesselTripDto)) throw new BadRequestException(`You can not have overlapping dates in 2 different voyages of one vessel`)
+    if (await this.isVesselInUse(createVesselTripDto)) throw new BadRequestException(`This vessel is now on a voyage. You can not have overlapping dates in 2 different voyages of one vessel`)
 
     if (journeyType === JourneyType.ETS) {
       const { grades, ...newTripData } = createVesselTripDto;
@@ -248,7 +248,7 @@ export class VesselTripsService {
             (moment(toDate).isSameOrAfter(data.fromDate) && moment(toDate).isSameOrBefore(data.toDate))
         ))
 
-      if (hasDuplicateIMOAndDatesOverlap) throw new BadRequestException(`You can not have overlapping dates in 2 different voyages of one vessel. Check row ${i + 1}`)
+      if (hasDuplicateIMOAndDatesOverlap) throw new BadRequestException(`This vessel is now on a voyage. You can not have overlapping dates in 2 different voyages of one vessel. Check row ${i + 1}`)
 
       dates.push({
         fromDate,
@@ -257,7 +257,7 @@ export class VesselTripsService {
       })
 
       if (await this.isVesselInUse({...createVesselTripsDto[i], vessel: vessel.id})) 
-        throw new BadRequestException(`You can not have overlapping dates in 2 different voyages of one vessel. Check row ${i + 1}`)
+        throw new BadRequestException(`This vessel is now on a voyage. You can not have overlapping dates in 2 different voyages of one vessel. Check row ${i + 1}`)
 
       vesselTrips.push({
         ...createData,
