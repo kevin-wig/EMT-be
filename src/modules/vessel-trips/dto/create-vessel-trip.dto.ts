@@ -18,8 +18,9 @@ import {
   IsNotEmpty,
   IsString,
   IsBoolean,
+  ValidateNested,
 } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { UniqueValueValidator } from '../../../shared/validators/unique-value.validator';
 import { VesselTrip } from '../entities/vessel-trip.entity';
 
@@ -77,7 +78,7 @@ class ValidateGrade implements ValidatorConstraintInterface {
 export class CreateVesselTripDto {
   @IsString()
   @ApiProperty()
-  @Validate(UniqueValueValidator, [VesselTrip], { message: 'Voyage name already exists' })
+  @Validate(UniqueValueValidator, [VesselTrip], { message: 'Voyage ID already exists in the database' })
   voyageId: string;
 
   @Transform((params) => +params.value)
@@ -209,4 +210,117 @@ export class CreateVesselTripDto {
   @Validate(ValidateGrade)
   @ApiProperty()
   grades: GradeDto[];
+}
+
+export class CreateVesselTripUploadDto {
+  @IsString()
+  @ApiProperty()
+  @Validate(UniqueValueValidator, [VesselTrip], { message: 'Voyage ID already exists in the database' })
+  voyageId: string;
+
+
+  @IsIn([JourneyType.CII, JourneyType.ETS])
+  @ApiProperty()
+  journeyType: JourneyType;
+
+  @IsIn([VoyageType.ACTUAL, VoyageType.ARCHIVED, VoyageType.PREDICTED])
+  @ApiProperty()
+  voyageType: VoyageType;
+
+  @ApiProperty()
+  vesselName: string;
+
+  @ApiProperty()
+  imo: string;
+
+  @IsDateString()
+  @ApiProperty()
+  fromDate: string;
+
+  @IsDateString()
+  @ApiProperty()
+  toDate: string;
+
+  @Transform((params) => +params.value)
+  @IsNumber()
+  @ApiProperty()
+  distanceTraveled: number;
+
+  @ApiProperty({ required: false })
+  hoursUnderway: string;
+
+  @IsOptional()
+  @Transform((params) => +params.value)
+  @IsNumber()
+  @ApiProperty()
+  mgo: number;
+
+  @IsOptional()
+  @Transform((params) => +params.value)
+  @IsNumber()
+  @ApiProperty()
+  lfo: number;
+
+  @Transform((params) => +params.value)
+  @IsNumber()
+  @ApiProperty()
+  hfo: number;
+
+  @Transform((params) => +params.value)
+  @IsNumber()
+  @ApiProperty()
+  vlsfoAD: number;
+
+  @Transform((params) => +params.value)
+  @IsNumber()
+  @ApiProperty()
+  vlsfoEK: number;
+
+  @Transform((params) => +params.value)
+  @IsNumber()
+  @ApiProperty()
+  vlsfoXB: number;
+
+  @Transform((params) => +params.value)
+  @IsNumber()
+  @ApiProperty()
+  lng: number;
+
+  @Transform((params) => +params.value)
+  @IsNumber()
+  @ApiProperty()
+  bioFuel: number;
+
+
+  @Transform((params) => +params.value)
+  @IsNumber()
+  @ApiProperty()
+  bunkerCost: number;
+
+  @Transform((params) => +params.value)
+  @IsNumber()
+  @ApiProperty()
+  freightProfit: number;
+
+  @IsString()
+  @ApiProperty()
+  originPort: string;
+
+  @IsString()
+  @ApiProperty()
+  destinationPort: string;
+
+  @IsOptional()
+  @IsArray()
+  @Validate(ValidateGrade)
+  @ApiProperty()
+  grades: GradeDto[];
+}
+
+export class CreateVesselTripsDto {
+  @IsArray()
+  @ApiProperty()
+  @ValidateNested({ each: true })
+  @Type(() => CreateVesselTripUploadDto)
+  vesselTrips: CreateVesselTripUploadDto[];
 }
