@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeepPartial, LessThan, MoreThan, Repository } from 'typeorm';
 
-import { CreateVesselTripDto } from '../dto/create-vessel-trip.dto';
+import { CreateVesselTripDto, CreateVesselTripUploadDto } from '../dto/create-vessel-trip.dto';
 import { UpdateVesselTripDto } from '../dto/update-vessel-trip.dto';
 import { VesselTrip } from '../entities/vessel-trip.entity';
 import { Port } from '../../vessels/entities/port.entity';
@@ -224,10 +224,15 @@ export class VesselTripsService {
     }
   }
 
-  async createTrips(createVesselTripsDto: CreateVesselTripDto[]) {
+  async createTrips(createVesselTripsDto: CreateVesselTripUploadDto[]) {
     const vesselTrips = [];
 
-    const dates = []
+    const voyageIds = Array.from(new Set(createVesselTripsDto.map((trip) => trip.voyageId)));
+    if (voyageIds.length < createVesselTripsDto.length) {
+      throw new BadRequestException('Voyage id is duplicating in uploading data');
+    }
+
+    const dates = [];
 
     for (let i = 0; i < createVesselTripsDto.length; i++) {
       const { imo, vesselName, originPort, destinationPort, fromDate, toDate, ...createData } =
@@ -256,7 +261,7 @@ export class VesselTripsService {
         imo
       })
 
-      if (await this.isVesselInUse({...createVesselTripsDto[i], vessel: vessel.id})) 
+      if (await this.isVesselInUse({ ...createVesselTripsDto[i], vessel: vessel.id } as CreateVesselTripDto))
         throw new BadRequestException(`This vessel is now on a voyage. You can not have overlapping dates in 2 different voyages of one vessel. Check row ${i + 1}`)
 
       vesselTrips.push({

@@ -26,7 +26,7 @@ import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 import { VesselTripsService } from '../services/vessel-trips.service';
-import { CreateVesselTripDto } from '../dto/create-vessel-trip.dto';
+import { CreateVesselTripDto, CreateVesselTripsDto, CreateVesselTripUploadDto } from '../dto/create-vessel-trip.dto';
 import { UpdateVesselTripDto } from '../dto/update-vessel-trip.dto';
 import { FailedResponseDto } from '../../../shared/dtos/failed-response.dto';
 import { SUCCESS } from '../../../shared/constants/message.constants';
@@ -65,11 +65,9 @@ export class VesselTripsController {
   @ApiResponse({ status: 400, type: FailedResponseDto })
   @HasRole(Roles.SUPER_ADMIN, Roles.COMPANY_EDITOR)
   async create(
-    @Body() createVesselTripDto: { [key: string]: CreateVesselTripDto },
+    @Body() { vesselTrips }: CreateVesselTripsDto,
   ) {
-    await this.vesselTripsService.createTrips(
-      Object.values(createVesselTripDto),
-    );
+    await this.vesselTripsService.createTrips(vesselTrips);
     return {
       message: SUCCESS,
     };
