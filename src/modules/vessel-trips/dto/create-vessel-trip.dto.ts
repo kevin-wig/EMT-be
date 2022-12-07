@@ -227,9 +227,12 @@ export class CreateVesselTripUploadDto {
   @ApiProperty()
   voyageType: VoyageType;
 
+  @IsOptional()
+  @IsString()
   @ApiProperty()
   vesselName: string;
 
+  @IsString()
   @ApiProperty()
   imo: string;
 
