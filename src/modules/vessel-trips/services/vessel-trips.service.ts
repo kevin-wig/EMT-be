@@ -227,11 +227,6 @@ export class VesselTripsService {
   async createTrips(createVesselTripsDto: CreateVesselTripUploadDto[]) {
     const vesselTrips = [];
 
-    const voyageIds = Array.from(new Set(createVesselTripsDto.map((trip) => trip.voyageId)));
-    if (voyageIds.length < createVesselTripsDto.length) {
-      throw new BadRequestException('Voyage id is duplicating in uploading data');
-    }
-
     const dates = [];
 
     for (let i = 0; i < createVesselTripsDto.length; i++) {
