@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeepPartial, LessThan, MoreThan, Repository } from 'typeorm';
+import { DeepPartial, getConnection, LessThan, MoreThan, Repository } from 'typeorm';
 
 import { CreateVesselTripDto, CreateVesselTripUploadDto } from '../dto/create-vessel-trip.dto';
 import { UpdateVesselTripDto } from '../dto/update-vessel-trip.dto';
@@ -195,18 +195,20 @@ export class VesselTripsService {
     const fromPort: any = await this.getPortIdByName(originPort);
     const toPort: any = await this.getPortIdByName(destinationPort);
 
-    if (await this.isVesselInUse(createVesselTripDto)) throw new BadRequestException(`This vessel is now on a voyage. You can not have overlapping dates in 2 different voyages of one vessel`)
+    if (await this.isVesselInUse(createVesselTripDto)) throw new BadRequestException(`This vessel is now on a voyage. You can not have overlapping dates in 2 different voyages of one vessel`);
 
     if (journeyType === JourneyType.ETS) {
       const { grades, ...newTripData } = createVesselTripDto;
 
       const savedGrades = await this.gradeRepository.save(grades);
 
+      const count = await this.vesselTripRepository.count();
       const data = {
         ...newTripData,
         originPort: fromPort,
         destinationPort: toPort,
         grades: savedGrades,
+        guid: `EMT${count.toString().padStart(10, '0')}`,
       } as DeepPartial<VesselTrip>
 
       return await this.vesselTripRepository.save(data);
@@ -217,6 +219,7 @@ export class VesselTripsService {
         ...createData,
         originPort: fromPort,
         destinationPort: toPort,
+        guid: `EMT${count.toString().padStart(10, '0')}`,
       } as DeepPartial<VesselTrip>
 
       return await this.vesselTripRepository.save(data);
@@ -228,6 +231,7 @@ export class VesselTripsService {
     const vesselTrips = [];
 
     const dates = [];
+    const count = await this.vesselTripRepository.count();
 
     for (let i = 0; i < createVesselTripsDto.length; i++) {
       const { imo, vesselName, originPort, destinationPort, fromDate, toDate, ...createData } =
@@ -266,6 +270,7 @@ export class VesselTripsService {
         toDate,
         originPort: fromPort,
         destinationPort: toPort,
+        guid: `EMT${(count + i + 1).toString().padStart(10, '0')}`,
       });
     }
 

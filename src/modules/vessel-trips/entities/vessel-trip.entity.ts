@@ -6,7 +6,8 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  BeforeInsert, Repository, getRepository, getConnection,
+  BeforeInsert,
+  getConnection,
 } from 'typeorm';
 
 import { Port } from '../../vessels/entities/port.entity';
@@ -104,7 +105,7 @@ export class VesselTrip {
   @Column({ nullable: false })
   voyageId: string;
 
-  @Column({ nullable: false })
+  @Column({ unique: true, nullable: false })
   guid: string;
 
   @Column({ default: false })
@@ -119,8 +120,10 @@ export class VesselTrip {
   @BeforeInsert()
   async beforeInsert() {
     const vesselTrip = this;
-    const count = await getConnection().getRepository(VesselTrip).count();
-    vesselTrip.guid = `EMT${count.toString().padStart(10, '0')}`;
+    if (!vesselTrip.guid) {
+      const count = await getConnection().getRepository(VesselTrip).count();
+      vesselTrip.guid = `EMT${count.toString().padStart(10, '0')}`;
+    }
     return vesselTrip;
   };
 }
