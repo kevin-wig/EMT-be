@@ -197,18 +197,18 @@ export class VesselTripsService {
 
     if (await this.isVesselInUse(createVesselTripDto)) throw new BadRequestException(`This vessel is now on a voyage. You can not have overlapping dates in 2 different voyages of one vessel`);
 
+    const count = await this.vesselTripRepository.count();
     if (journeyType === JourneyType.ETS) {
       const { grades, ...newTripData } = createVesselTripDto;
 
       const savedGrades = await this.gradeRepository.save(grades);
 
-      const count = await this.vesselTripRepository.count();
       const data = {
         ...newTripData,
         originPort: fromPort,
         destinationPort: toPort,
         grades: savedGrades,
-        guid: `EMT${count.toString().padStart(10, '0')}`,
+        guid: `EMT${(count + 1).toString().padStart(10, '0')}`,
       } as DeepPartial<VesselTrip>
 
       return await this.vesselTripRepository.save(data);
@@ -219,7 +219,7 @@ export class VesselTripsService {
         ...createData,
         originPort: fromPort,
         destinationPort: toPort,
-        guid: `EMT${count.toString().padStart(10, '0')}`,
+        guid: `EMT${(count + 1).toString().padStart(10, '0')}`,
       } as DeepPartial<VesselTrip>
 
       return await this.vesselTripRepository.save(data);
