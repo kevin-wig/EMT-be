@@ -78,7 +78,6 @@ class ValidateGrade implements ValidatorConstraintInterface {
 export class CreateVesselTripDto {
   @IsString()
   @ApiProperty()
-  @Validate(UniqueValueValidator, [VesselTrip], { message: 'Voyage ID already exists in the database' })
   voyageId: string;
 
   @Transform((params) => +params.value)
