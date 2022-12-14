@@ -1062,6 +1062,7 @@ export class VesselsService {
         SELECT
           ${level === GraphLevel.TRIP ? 'vessel_trip.id,' : ''}
           vessel_trip.voyage_id AS voyageId,
+          vessel_trip.guid AS guid,
           vessel_trip.voyage_type as voyageType,
           vessel_trip.distance_traveled as distance,
           ${DWTQuery} as dwt,
@@ -1083,7 +1084,7 @@ export class VesselsService {
           AND (${aggregateQuery})
         GROUP BY ${
           level === GraphLevel.VOYAGE
-            ? 'vessel_trip.voyage_id'
+            ? 'vessel_trip.guid'
             : 'vessel_trip.id'
         }
       `);
@@ -1130,6 +1131,7 @@ export class VesselsService {
     return await this.vesselTripRepository.manager.query(`
       SELECT
         vessel_trip.voyage_id AS voyageId,
+        vessel_trip.guid AS guid,
         SUM(coalesce(mgo, 0) * 3.206) AS mgo,
         SUM(coalesce(lfo, 0) * 3.151) AS lfo,
         SUM(coalesce(hfo, 0) * 3.114) AS hfo,
@@ -1156,7 +1158,7 @@ export class VesselsService {
         ${vesselId ? `AND vessel.id = ${vesselId}` : ''}
         ${companyId ? `AND vessel.company_id = ${companyId}` : ''}
         ${`AND (${aggregateQuery})`}
-      GROUP BY vessel_trip.voyage_id
+      GROUP BY vessel_trip.guid
     `);
   }
 
@@ -1211,7 +1213,7 @@ export class VesselsService {
       SELECT
         ${
           mode === GraphLevel.VOYAGE
-            ? 'vessel_trip.voyage_id as voyageId,'
+            ? 'vessel_trip.voyage_id as voyageId, vessel_trip.guid as guid,'
             : 'year_tbl.year,'
         }
         ${emissionsQuery} AS emissions,
@@ -1256,7 +1258,7 @@ export class VesselsService {
             : ''
         }
       GROUP BY ${
-        mode === GraphLevel.VOYAGE ? 'vessel_trip.voyage_id' : 'year_tbl.year'
+        mode === GraphLevel.VOYAGE ? 'vessel_trip.guid' : 'year_tbl.year'
       }
       ${
         mode === GraphLevel.VOYAGE ? '' : 'ORDER BY year_tbl.year'
@@ -1430,7 +1432,7 @@ export class VesselsService {
           vessel.name,
           ${level === GraphLevel.YEAR ? 'year_tbl.year AS "key",' : ''}
           ${level === GraphLevel.MONTH ? 'month_tbl.month AS "key",' : ''}
-          ${level === GraphLevel.VOYAGE ? 'vessel_trip.id AS "key", vessel_trip.voyage_id as voyageId,' : ''}
+          ${level === GraphLevel.VOYAGE ? 'vessel_trip.id AS "key", vessel_trip.voyage_id as voyageId, vessel_trip.guid as guid,' : ''}
           ${ciiQuery} / ${requiredQuery} AS cii,
           ${categoryQuery} AS category
         FROM vessel_trip
@@ -1577,7 +1579,7 @@ export class VesselsService {
         vessel.name,
         ${level === GraphLevel.YEAR ? 'year_tbl.year AS "key",' : ''}
         ${level === GraphLevel.MONTH ? 'month_tbl.month AS "key",' : ''}
-        ${level === GraphLevel.VOYAGE ? 'vessel_trip.id AS "key", vessel_trip.voyage_id as voyageId,' : ''}
+        ${level === GraphLevel.VOYAGE ? 'vessel_trip.id AS "key", vessel_trip.voyage_id as voyageId, vessel_trip.guid as guid,' : ''}
         ${categoryQuery} AS category
       FROM vessel
       ${this.generateLeftJoinTable([
@@ -1702,7 +1704,7 @@ export class VesselsService {
         vessel.net_tonnage,
         ${level === GraphLevel.YEAR ? 'year_tbl.year AS "key",' : ''}
         ${level === GraphLevel.MONTH ? 'month_tbl.month AS "key",' : ''}
-        ${level === GraphLevel.VOYAGE ? 'vessel_trip.id AS "key",vessel_trip.voyage_id AS "voyageId",' : ''}
+        ${level === GraphLevel.VOYAGE ? 'vessel_trip.id AS "key", vessel_trip.voyage_id AS "voyageId", vessel_trip.guid AS "guid",' : ''}
         ${emissionsQuery} AS emissions,
         ${ciiQuery} AS cii
       FROM vessel
@@ -2098,6 +2100,7 @@ export class VesselsService {
         SELECT  
           vessel.id,
           vessel_trip.voyage_id AS voyageId,
+          vessel_trip.guid AS guid,
           year_tbl.year,
           ${co2InboundEu} AS _co2InboundEu,
           ${co2OutboundEu} AS _co2OutboundEu,
@@ -2147,6 +2150,7 @@ export class VesselsService {
       SELECT  
         vessel.id,
         vessel_trip.voyage_id as voyageId,
+        vessel_trip.guid as guid,
         year_tbl.year,
         month_tbl.month,
         ${co2InboundEu} AS _co2InboundEu,
@@ -2218,6 +2222,7 @@ export class VesselsService {
       SELECT  
         vessel.id,
         vessel_trip.voyage_id as voyageId,
+        vessel_trip.guid as guid,
         year_tbl.year,
         month_tbl.month,
         ${co2InboundEu} AS _co2InboundEu,
@@ -2391,6 +2396,7 @@ export class VesselsService {
       SELECT  
           vessel.id,
           vessel_trip.voyage_id AS voyageId,
+          vessel_trip.guid AS guid,
           year_tbl.year,
           month_tbl.month,
           ${co2InboundEu} AS _co2InboundEu,
