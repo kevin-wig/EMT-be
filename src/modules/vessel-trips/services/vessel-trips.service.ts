@@ -385,6 +385,7 @@ export class VesselTripsService {
           vessel_trip.id,
           vessel.name AS vesselName,
           vessel_trip.voyage_id AS voyageId,
+          vessel_trip.guid AS guid,
           origin_port.name AS originPort,
           destination_port.name AS destinationPort,
           ${emissionsQuery} AS co2Emissions,
@@ -438,6 +439,7 @@ export class VesselTripsService {
             vessel_trip.id,
             vessel.id AS vesselId,
             vessel_trip.voyage_id AS voyageId,
+            vessel_trip.guid AS guid,
             vessel_trip.voyage_type AS status,
             vessel.name AS vesselName,
             year_tbl.year,
@@ -469,6 +471,7 @@ export class VesselTripsService {
         SELECT
           vessel_trip.id AS id,
           vessel_trip.voyage_id AS voyageId,
+          vessel_trip.guid AS guid,
           vessel.name AS vesselName,
           vessel_trip.from_date AS fromDate,
           vessel_trip.to_date AS toDate,
@@ -680,6 +683,7 @@ export class VesselTripsService {
       SELECT
         ${level === GraphLevel.TRIP ? 'vessel_trip.id,' : ''}
         vessel_trip.voyage_id AS voyageId,
+        vessel_trip.guid AS guid,
         vessel_trip.distance_traveled as distance,
         ${ciiQuery} AS cii,
         ${DWTQuery} as dwt,
@@ -706,7 +710,7 @@ export class VesselTripsService {
         ${vesselId ? `AND vessel.id = ${vesselId}` : ''}
         ${companyId ? `AND vessel.company_id = ${companyId}` : ''}
         ${`AND ${aggregateQuery}`}
-      GROUP BY vessel_trip.voyage_id
+      GROUP BY vessel_trip.guid
       ORDER BY vessel_trip.from_date
     `);
   }
@@ -721,6 +725,7 @@ export class VesselTripsService {
     return await this.vesselTripRepository.manager.query(`
       SELECT
         vessel_trip.voyage_id AS voyageId,
+        vessel_trip.guid AS guid,
         bunker_cost as cost,
         mgo,
         lfo,
@@ -741,7 +746,7 @@ export class VesselTripsService {
       ${whereQuery}
       ${vesselId ? `AND vessel.id = ${vesselId}` : ''}
       GROUP BY ${
-      'vessel_trip.voyage_id'
+      'vessel_trip.guid'
       }
       ORDER BY vessel.id
     `);
