@@ -122,7 +122,7 @@ export class VesselTrip {
     const vesselTrip = this;
     if (!vesselTrip.guid) {
       const count = await getConnection().getRepository(VesselTrip).count();
-      vesselTrip.guid = `EMT${count.toString().padStart(10, '0')}`;
+      vesselTrip.guid = `EMT${(count + 1).toString().padStart(10, '0')}`;
     }
     return vesselTrip;
   };
