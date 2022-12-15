@@ -121,8 +121,10 @@ export class VesselTrip {
   async beforeInsert() {
     const vesselTrip = this;
     if (!vesselTrip.guid) {
-      const count = await getConnection().getRepository(VesselTrip).count();
-      vesselTrip.guid = `EMT${(count + 1).toString().padStart(10, '0')}`;
+      const res = await getConnection().getRepository(VesselTrip).query('SELECT MAX(guid) as max FROM vessel_trip');
+      const currentGuidText = res[0].max;
+      const maxGuid = +currentGuidText.replace(/\D*/, '');
+      vesselTrip.guid = `EMT${(maxGuid + 1).toString().padStart(10, '0')}`;
     }
     return vesselTrip;
   };

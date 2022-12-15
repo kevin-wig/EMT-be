@@ -197,7 +197,10 @@ export class VesselTripsService {
 
     if (await this.isVesselInUse(createVesselTripDto)) throw new BadRequestException(`This vessel is now on a voyage. You can not have overlapping dates in 2 different voyages of one vessel`);
 
-    const count = await this.vesselTripRepository.count();
+    const res = await this.vesselTripRepository.query('SELECT MAX(guid) as max FROM vessel_trip');
+    const currentGuidText = res[0].max;
+    const maxGuid = +currentGuidText.replace(/\D*/, '');
+
     if (journeyType === JourneyType.ETS) {
       const { grades, ...newTripData } = createVesselTripDto;
 
@@ -208,7 +211,7 @@ export class VesselTripsService {
         originPort: fromPort,
         destinationPort: toPort,
         grades: savedGrades,
-        guid: `EMT${(count + 1).toString().padStart(10, '0')}`,
+        guid: `EMT${(maxGuid + 1).toString().padStart(10, '0')}`,
       } as DeepPartial<VesselTrip>
 
       return await this.vesselTripRepository.save(data);
@@ -219,7 +222,7 @@ export class VesselTripsService {
         ...createData,
         originPort: fromPort,
         destinationPort: toPort,
-        guid: `EMT${(count + 1).toString().padStart(10, '0')}`,
+        guid: `EMT${(maxGuid + 1).toString().padStart(10, '0')}`,
       } as DeepPartial<VesselTrip>
 
       return await this.vesselTripRepository.save(data);
@@ -231,7 +234,9 @@ export class VesselTripsService {
     const vesselTrips = [];
 
     const dates = [];
-    const count = await this.vesselTripRepository.count();
+    const res = await this.vesselTripRepository.query('SELECT MAX(guid) as max FROM vessel_trip');
+    const currentGuidText = res[0].max;
+    const maxGuid = +currentGuidText.replace(/\D*/, '');
 
     for (let i = 0; i < createVesselTripsDto.length; i++) {
       const { imo, vesselName, originPort, destinationPort, fromDate, toDate, ...createData } =
@@ -270,7 +275,7 @@ export class VesselTripsService {
         toDate,
         originPort: fromPort,
         destinationPort: toPort,
-        guid: `EMT${(count + i + 1).toString().padStart(10, '0')}`,
+        guid: `EMT${(maxGuid + i + 1).toString().padStart(10, '0')}`,
       });
     }
 
