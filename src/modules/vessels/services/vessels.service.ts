@@ -194,11 +194,11 @@ export class VesselsService {
     };
   }
 
-  public generateLeftJoinTable(tables: string[]) {
+  public generateLeftJoinTable(tables: string[], isCII = false) {
     let joinTable = '';
 
     if (tables.includes('vessel_trip')) {
-      joinTable += 'LEFT JOIN vessel_trip ON vessel_trip.vessel = vessel.id\n';
+      joinTable += `LEFT JOIN vessel_trip ON vessel_trip.vessel = vessel.id${isCII ? ` and vessel_trip.journey_type = 'CII'` : ''}\n`;
     }
 
     if (tables.includes('vessel')) {
@@ -502,8 +502,7 @@ export class VesselsService {
           'company',
           'fleet',
           `year_tbl:${year}`,
-        ])}
-        WHERE vessel_trip.journey_type = 'CII'
+        ], true)}
         GROUP BY vessel.id, year_tbl.year
         ORDER BY year_tbl.year DESC
       ) AS res
@@ -1305,7 +1304,7 @@ export class VesselsService {
       year = new Date().getFullYear();
     }
 
-    const subQuery = this.generateCiiQuery(year);
+    const subQuery = this.generateCiiQuery(year).replace('WHERE res.cii IS NOT NULL', '');
     const whereQuery = this.generateWhereQueryForList(companyId, searchOption);
 
     return this.getListData(subQuery, whereQuery, paginationOption, sortOption);
