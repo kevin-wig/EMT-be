@@ -162,10 +162,7 @@ export class VesselTripsService {
 
     if (!exist) {
       if (imo) {
-        return await this.vesselRepository.save({
-          name: `IMO-${imo}`,
-          imo
-        });
+        throw new BadRequestException(`Vessel with IMO ${imo} does not exist`);
       } else {
         return null;
       }
