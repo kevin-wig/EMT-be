@@ -214,7 +214,6 @@ export class CreateVesselTripDto {
 export class CreateVesselTripUploadDto {
   @IsString()
   @ApiProperty()
-  @Validate(UniqueValueValidator, [VesselTrip], { message: 'Voyage ID already exists in the database' })
   voyageId: string;
 
 
