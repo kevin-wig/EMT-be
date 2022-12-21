@@ -230,7 +230,7 @@ export class CreateVesselTripUploadDto {
 
   @IsDate()
   @Transform((params) => new Date(params.value))
-  @MaxDate(new Date(2026, 12, 31, 23, 59, 59), { message: 'Voyage  starting beyond 2026 are not yet supported' })
+  @MaxDate(new Date(2026, 12, 31, 23, 59, 59), { message: 'Voyage starting beyond 2026 are not yet supported' })
   @ApiProperty()
   fromDate: Date;
 
