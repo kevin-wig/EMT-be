@@ -9,15 +9,16 @@ import {
   ValidatorConstraintInterface,
   validateSync,
   IsDateString,
+  IsDate,
   IsEnum,
   IsIn,
   IsNumber,
   IsOptional,
   Validate,
   IsArray,
-  IsNotEmpty,
   IsString,
   IsBoolean,
+  MaxDate,
   ValidateNested,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
@@ -99,13 +100,17 @@ export class CreateVesselTripDto {
   @ApiProperty()
   imo: string;
 
-  @IsDateString()
+  @IsDate()
+  @Transform((params) => new Date(params.value))
+  @MaxDate(new Date(2026, 11, 31, 23, 59, 59), { message: 'From Date should be until 12/31/2026' })
   @ApiProperty()
-  fromDate: string;
+  fromDate: Date;
 
-  @IsDateString()
+  @IsDate()
+  @Transform((params) => new Date(params.value))
+  @MaxDate(new Date(2026, 11, 31, 23, 59, 59), { message: 'To Date should be until 12/31/2026' })
   @ApiProperty()
-  toDate: string;
+  toDate: Date;
 
   @Transform((params) => +params.value)
   @IsNumber()
@@ -206,7 +211,6 @@ export class CreateVesselTripUploadDto {
   @ApiProperty()
   voyageId: string;
 
-
   @IsIn([JourneyType.CII, JourneyType.ETS])
   @ApiProperty()
   journeyType: JourneyType;
@@ -224,13 +228,17 @@ export class CreateVesselTripUploadDto {
   @ApiProperty()
   imo: string;
 
-  @IsDateString()
+  @IsDate()
+  @Transform((params) => new Date(params.value))
+  @MaxDate(new Date(2026, 12, 31, 23, 59, 59), { message: 'From Date should be until 12/31/2026' })
   @ApiProperty()
-  fromDate: string;
+  fromDate: Date;
 
-  @IsDateString()
+  @IsDate()
+  @Transform((params) => new Date(params.value))
+  @MaxDate(new Date(2026, 11, 31, 23, 59, 59), { message: 'To Date should be until 12/31/2026' })
   @ApiProperty()
-  toDate: string;
+  toDate: Date;
 
   @Transform((params) => +params.value)
   @IsNumber()
