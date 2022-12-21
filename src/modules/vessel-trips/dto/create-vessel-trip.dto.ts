@@ -102,13 +102,13 @@ export class CreateVesselTripDto {
 
   @IsDate()
   @Transform((params) => new Date(params.value))
-  @MaxDate(new Date(2026, 11, 31, 23, 59, 59), { message: 'From Date should be until 12/31/2026' })
+  @MaxDate(new Date(2026, 11, 31, 23, 59, 59), { message: 'Voyage starting beyond 2026 are not yet supported' })
   @ApiProperty()
   fromDate: Date;
 
   @IsDate()
   @Transform((params) => new Date(params.value))
-  @MaxDate(new Date(2026, 11, 31, 23, 59, 59), { message: 'To Date should be until 12/31/2026' })
+  @MaxDate(new Date(2026, 11, 31, 23, 59, 59), { message: 'Voyages ending beyond 2026 are not yet supported' })
   @ApiProperty()
   toDate: Date;
 
@@ -230,13 +230,13 @@ export class CreateVesselTripUploadDto {
 
   @IsDate()
   @Transform((params) => new Date(params.value))
-  @MaxDate(new Date(2026, 12, 31, 23, 59, 59), { message: 'From Date should be until 12/31/2026' })
+  @MaxDate(new Date(2026, 12, 31, 23, 59, 59), { message: 'Voyage  starting beyond 2026 are not yet supported' })
   @ApiProperty()
   fromDate: Date;
 
   @IsDate()
   @Transform((params) => new Date(params.value))
-  @MaxDate(new Date(2026, 11, 31, 23, 59, 59), { message: 'To Date should be until 12/31/2026' })
+  @MaxDate(new Date(2026, 11, 31, 23, 59, 59), { message: 'Voyages ending beyond 2026 are not yet supported' })
   @ApiProperty()
   toDate: Date;
 
