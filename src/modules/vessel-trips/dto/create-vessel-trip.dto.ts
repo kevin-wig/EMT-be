@@ -175,17 +175,7 @@ export class CreateVesselTripDto {
   @Transform((params) => +params.value)
   @IsNumber()
   @ApiProperty()
-  fuelCost: number;
-
-  @Transform((params) => +params.value)
-  @IsNumber()
-  @ApiProperty()
   bunkerCost: number;
-
-  @Transform((params) => +params.value)
-  @IsNumber()
-  @ApiProperty()
-  freightCharges: number;
 
   @Transform((params) => +params.value)
   @IsNumber()
