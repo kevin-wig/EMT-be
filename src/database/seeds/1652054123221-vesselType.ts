@@ -13,10 +13,14 @@ export class vesselType1652054123221 implements MigrationInterface {
     const vesselTypes: Partial<VesselType>[] = [
       {
         id: 1,
-        vessel_type: 'Tanker',
+        vessel_type: 'Chemical Tanker',
       },
       {
         id: 2,
+        vessel_type: 'Oil Tanker',
+      },
+      {
+        id: 3,
         vessel_type: 'Bulk Carrier',
       }
     ];
