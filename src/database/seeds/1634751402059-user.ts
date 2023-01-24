@@ -44,7 +44,7 @@ export class userRole1634751802089 implements MigrationInterface {
     const smsUser: Partial<User> = {
       firstname: 'Demo',
       lastname: 'User',
-      email: 'demo@email.com',
+      email: 'info@afaiatech.eu',
       password: password,
       userRole: 1,
       companyId: company.id,

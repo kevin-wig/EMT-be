@@ -12,7 +12,7 @@ export class UpdateVesselTypes1662985115309 implements MigrationInterface {
         );
 
         await queryRunner.manager.query(
-            `INSERT INTO vessel_type (id, vessel_type) VALUES ('3', 'Bulk Carrier')`
+          `UPDATE vessel_type set vessel_type = 'Bulk Carrier' WHERE id = '3'`
         );
     }
 

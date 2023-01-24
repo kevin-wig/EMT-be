@@ -26,7 +26,7 @@ export class Company {
   @Column({ unique: true })
   primaryContactEmailAddress: string;
 
-  @Column()
+  @Column({ nullable: true })
   contactPhoneNumber: string;
 
   @Column()

@@ -44,28 +44,20 @@ pipelines:
     qa:
       - step:
           name: "Build"
-          deployment: azure-qa-db
+          deployment: azure-afaia-prod-db
           script:
             - nvm install 14
-            - touch .env
-            - echo $ENV_FILE_BASE64 | base64 --decode --ignore-garbage > .env
-            - cat .env
             - npm install
             - npm run build
             - npm run migration:sync
             - npm run migration:run
             - ls
-            - cd dist
-            - mkdir node_modules
-            - cd ..
-            - cp -R node_modules/* dist/node_modules
-            - cd dist
-            - zip -r ../emt-be-$BITBUCKET_BUILD_NUMBER.zip .
+            - zip -r emt-be-$BITBUCKET_BUILD_NUMBER.zip  ./dist
           artifacts: 
             - emt-be-*.zip
       - step:
           name: "Deploy to Azure"
-          deployment: azure-qa
+          deployment: azure-afaia-prod
           script:
             - pipe: microsoft/azure-web-apps-deploy:1.0.0
               variables:
