@@ -21,6 +21,14 @@ export class MessagingService {
           user: process.env['SMTP_USERNAME'],
           pass: process.env['SMTP_PASSWORD'],
         },
+        tls: {
+          minDHSize: 512,
+          minVersion: 'TLSv1',
+          maxVersion: 'TLSv1.3',
+          ciphers: 'ALL',
+        },
+        logger: true,
+        debug: true, // include SMTP traffic in the logs
       });
       const mailOptions = {
         from: data['from'] || process.env['SMTP_USERNAME'], // sender address
