@@ -12,25 +12,30 @@ export class MessagingService {
   }
 
   async sendMail(data: SimpleMail) {
-    let transporter = nodemailer.createTransport({
-      host: process.env['SMTP_HOST'],
-      port: process.env['SMTP_PORT'],
-      secure: process.env['SMTP_SECURE'], // true for 465, false for other ports
-      auth: {
-        user: process.env['SMTP_USERNAME'],
-        pass: process.env['SMTP_PASSWORD'],
-      },
-    });
-    const mailOptions = {
-      from: data['from'] || process.env['SMTP_USERNAME'], // sender address
-      to: data.to, // list of receivers
-      subject: data.subject, // Subject line
-      html: this.mailTemplate(data),
-    };
-    await transporter.sendMail(mailOptions, function (err, info) {
-      if (err) console.log(err);
-      else console.log(info);
-    });
+    return new Promise((resolve, reject) => {
+      let transporter = nodemailer.createTransport({
+        host: process.env['SMTP_HOST'],
+        port: process.env['SMTP_PORT'],
+        secure: process.env['SMTP_SECURE'], // true for 465, false for other ports
+        auth: {
+          user: process.env['SMTP_USERNAME'],
+          pass: process.env['SMTP_PASSWORD'],
+        },
+      });
+      const mailOptions = {
+        from: data['from'] || process.env['SMTP_USERNAME'], // sender address
+        to: data.to, // list of receivers
+        subject: data.subject, // Subject line
+        html: this.mailTemplate(data),
+      };
+      transporter.sendMail(mailOptions, function (err, info) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(info);
+        }
+      });
+    })
   }
 
   sendSMS(data: SimpleMail) {
