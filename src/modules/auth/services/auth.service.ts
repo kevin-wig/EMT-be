@@ -1,5 +1,5 @@
 import { compare, genSalt, hash } from 'bcrypt';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { TwoFactor } from 'src/modules/two-factor/entities/two-factor.entity';
@@ -254,10 +254,11 @@ export class AuthService {
             resolve({ OTP, response });
           })
           .catch((error) => {
-            console.log('SEND OTP ERROR =>', error.message);
+            Logger.error('SEND OTP ERROR =>', error);
             reject(error);
           });
       } catch (error) {
+        Logger.error('SEND OTP ERROR =>', error);
         reject(error);
       }
     });
