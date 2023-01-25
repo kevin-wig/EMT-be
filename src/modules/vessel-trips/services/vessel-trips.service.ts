@@ -195,7 +195,7 @@ export class VesselTripsService {
     if (await this.isVesselInUse(createVesselTripDto)) throw new BadRequestException(`This vessel is now on a voyage. You can not have overlapping dates in 2 different voyages of one vessel`);
 
     const res = await this.vesselTripRepository.query('SELECT MAX(guid) as max FROM vessel_trip');
-    const currentGuidText = res[0].max;
+    const currentGuidText = res[0].max || '1';
     const maxGuid = +currentGuidText.replace(/\D*/, '');
 
     if (journeyType === JourneyType.ETS) {
