@@ -703,6 +703,7 @@ export class VesselTripsService {
       'vessel',
       'year_tbl_group_by',
       'vessel_type',
+      'aggregate_tbl',
     ])}
       WHERE
         vessel_trip.journey_type = 'CII'
