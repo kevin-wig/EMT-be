@@ -86,17 +86,7 @@ export class VesselsService {
 
   public generateAggregateCheckQueryString() {
     return `((
-        (
-          SELECT
-            COUNT(vessel_trip.id)
-          FROM vessel_trip
-          JOIN vessel_trip as vt ON vessel_trip.id = vessel_trip.id
-          WHERE
-            vessel_trip.id <> vt.id
-            AND vt.is_aggregate = 1
-            AND vt.from_date <= vessel_trip.from_date
-            AND vt.to_date >= vessel_trip.to_date
-        ) = 0
+        (aggregate_tbl.aggregate_count IS NULL OR aggregate_tbl.aggregate_count = 0)
         AND vessel_trip.is_aggregate <> 1
       ) OR vessel_trip.is_aggregate = 1)`;
   }
@@ -230,6 +220,24 @@ export class VesselsService {
     if (tables.includes('destination_port')) {
       joinTable +=
         'LEFT JOIN port AS destination_port ON vessel_trip.destination_port = destination_port.id\n';
+    }
+
+    if (tables.includes('aggregate_tbl')) {
+      joinTable +=
+        `LEFT JOIN (
+          SELECT
+            COUNT(vet.id) AS aggregate_count, vessel.company_id
+          FROM vessel_trip AS vet
+          JOIN vessel_trip AS vt ON vet.id = vet.id
+          LEFT JOIN vessel ON vet.vessel = vessel.id
+          LEFT JOIN vessel_type ON vessel.vessel_type_id = vet.id
+          WHERE
+            vet.id <> vt.id
+            AND vt.is_aggregate = 1
+            AND vt.from_date <= vet.from_date
+            AND vt.to_date >= vet.to_date
+            GROUP BY vessel.company_id
+        ) AS aggregate_tbl ON aggregate_tbl.company_id = vessel.company_id`;
     }
 
     if (tables.includes('year_tbl_group_by')) {
@@ -1074,6 +1082,7 @@ export class VesselsService {
           'vessel',
           'vessel_type',
           'year_tbl_group_by',
+          'aggregate_tbl',
         ])}
         WHERE
           vessel_trip.journey_type = 'CII'
@@ -1145,7 +1154,7 @@ export class VesselsService {
         SUM(vessel_trip.distance_traveled) AS distanceTraveled,
         vessel_trip.voyage_type as voyageType
       FROM vessel_trip
-      ${this.generateLeftJoinTable(['vessel', 'year_tbl_group_by'])}
+      ${this.generateLeftJoinTable(['vessel', 'year_tbl_group_by', 'aggregate_tbl'])}
       WHERE
         vessel_trip.journey_type = 'CII'
         ${`AND vessel_trip.voyage_type in ('${voyageType
@@ -1304,7 +1313,7 @@ export class VesselsService {
       year = new Date().getFullYear();
     }
 
-    const subQuery = this.generateCiiQuery(year).replace('WHERE res.cii IS NOT NULL', '');
+    const subQuery = this.generateCiiQuery(year);// .replace('WHERE res.cii IS NOT NULL', '');
     const whereQuery = this.generateWhereQueryForList(companyId, searchOption);
 
     return this.getListData(subQuery, whereQuery, paginationOption, sortOption);
@@ -1440,6 +1449,7 @@ export class VesselsService {
           'vessel_type',
           'year_tbl',
           'month_tbl_group_by',
+          'aggregate_tbl',
         ])}
         WHERE
           vessel_type = '${type}'
@@ -1586,6 +1596,7 @@ export class VesselsService {
         'vessel_type',
         'year_tbl',
         'month_tbl_group_by',
+        'aggregate_tbl',
       ])}
       WHERE
         vessel.company_id = ${companyId}
@@ -1620,6 +1631,7 @@ export class VesselsService {
         'grade',
         `year_tbl:${year}`,
         'month_tbl_group_by',
+        'aggregate_tbl',
       ])}
       WHERE
         vessel.company_id = ${companyId}
@@ -1646,6 +1658,7 @@ export class VesselsService {
         'vessel_trip',
         'grade',
         `year_tbl:${year}`,
+        'aggregate_tbl',
       ])}
       WHERE
         vessel.company_id = ${companyId}
