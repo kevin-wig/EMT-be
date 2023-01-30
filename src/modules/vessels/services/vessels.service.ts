@@ -52,7 +52,6 @@ import {
 import { PdfService } from '../../../shared/services/pdf.service';
 import { VesselType } from '../entities/vessel-type.entity';
 import { Company } from 'src/modules/companies/entities/company.entity';
-import * as moment from 'moment';
 import { IPayload } from '../../auth/auth.types';
 import { GetCIIDataDto } from '../../third-party/dto/get-cii-data.dto';
 // Todo: factor and rate should be provided.
@@ -897,7 +896,7 @@ export class VesselsService {
         fleet: fleetData?.id,
         email,
         imo,
-        date_of_built: moment(date_of_built, 'DD/MM/YYYY').toISOString(),
+        date_of_built: new Date(date_of_built).toISOString(),
         company_id: companyData?.id,
         vessel_type_id: vesselType?.id,
       });

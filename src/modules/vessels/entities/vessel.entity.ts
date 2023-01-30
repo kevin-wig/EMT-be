@@ -63,6 +63,9 @@ export class Vessel {
   iceClass: string;
 
   @Column({ nullable: true })
+  powerOutput: number;
+
+  @Column({ nullable: true })
   propulsionPower: number;
 
   @Column({ nullable: true })

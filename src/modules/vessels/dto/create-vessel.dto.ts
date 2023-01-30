@@ -56,6 +56,10 @@ export class CreateVesselDto {
 
   @IsNotEmpty()
   @ApiProperty()
+  powerOutput: number;
+
+  @IsNotEmpty()
+  @ApiProperty()
   propulsionPower: number;
 
   @IsString()
