@@ -107,7 +107,8 @@ export class VesselsService {
 
     const vesselTypeFactorQuery = `IF(COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1})) = 'Chemical Tanker' OR COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1})) = 'Oil Tanker', 5247, IF(COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1})) = 'Bulk Carrier', 4745, 0))`;
     const vesselTypePowQuery = `IF(COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1})) = 'Chemical Tanker' OR COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1})) = 'Oil Tanker', -0.61, IF(COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1})) = 'Bulk Carrier', -0.622, -0.61))`;
-    const target2019Query = `POW(COALESCE(vessel.dwt, ${data?.dwt?.[0] || null}), ${vesselTypePowQuery}) *  ${vesselTypeFactorQuery}`;
+    const vesselTypeQuery = `COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1}))`;
+    const target2019Query = `POW(LEAST(COALESCE(vessel.dwt, ${data?.dwt?.[0] || null}), IF(${vesselTypeQuery} = 'Bulk Carrier', 279000, COALESCE(vessel.dwt, ${data?.dwt?.[0] || null})) ), ${vesselTypePowQuery}) *  ${vesselTypeFactorQuery}`;
     const requiredQuery = `
       CASE
         WHEN ${year || 'year_tbl.year'} = 2019 THEN ${target2019Query}
