@@ -52,6 +52,10 @@ pipelines:
             - npm run migration:sync
             - npm run migration:run
             - ls
+            - cd dist
+            - mkdir node_modules
+            - cd ..
+            - cp -R node_modules/* dist/node_modules
             - zip -r emt-be-$BITBUCKET_BUILD_NUMBER.zip  ./dist
           artifacts: 
             - emt-be-*.zip

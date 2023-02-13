@@ -245,11 +245,14 @@ export class AuthService {
               });
             } else {
               /* send OTP via email */
-              response = await mailService.sendMail({
-                to: user.email,
-                subject: '2FA AUTHENTICATION',
-                body: `<p>Hello,<br/><br/>Your Two-Factor Authentication code is<br/><br/><h3>${OTP}</h3>This code will expire in 5 minutes.</p>`,
-              });
+              try {
+                response = await mailService.sendMail({
+                  to: user.email,
+                  subject: '2FA AUTHENTICATION',
+                  body: `<p>Hello,<br/><br/>Your Two-Factor Authentication code is<br/><br/><h3>${OTP}</h3>This code will expire in 5 minutes.</p>`,
+                });
+              } catch (e) {
+              }
             }
             resolve({ OTP, response });
           })

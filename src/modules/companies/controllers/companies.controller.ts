@@ -13,7 +13,7 @@ import {
   Res,
   UseGuards,
   UploadedFile,
-  UseInterceptors,
+  UseInterceptors, InternalServerErrorException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -795,15 +795,20 @@ export class CompaniesController {
   ) {
     await this.isEnableToAccessToCompanyData(req.user, +id);
 
-    const res = await this.companiesService.getVesselsGhgChart(+id, +year);
+    try {
+      const res = await this.companiesService.getVesselsGhgChart(+id, +year);
 
-    if (res) {
-      return {
-        message: SUCCESS,
-        data: res,
-      };
-    } else {
-      throw new BadRequestException();
+      if (res) {
+        return {
+          message: SUCCESS,
+          data: res,
+        };
+      } else {
+        throw new BadRequestException();
+      }
+    } catch (e) {
+      console.log(e);
+      throw new InternalServerErrorException();
     }
   }
 

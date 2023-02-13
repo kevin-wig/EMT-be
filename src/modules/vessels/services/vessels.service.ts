@@ -107,8 +107,7 @@ export class VesselsService {
 
     const vesselTypeFactorQuery = `IF(COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1})) = 'Chemical Tanker' OR COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1})) = 'Oil Tanker', 5247, IF(COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1})) = 'Bulk Carrier', 4745, 0))`;
     const vesselTypePowQuery = `IF(COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1})) = 'Chemical Tanker' OR COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1})) = 'Oil Tanker', -0.61, IF(COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1})) = 'Bulk Carrier', -0.622, -0.61))`;
-    const vesselTypeQuery = `COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1}))`;
-    const target2019Query = `POW(LEAST(COALESCE(vessel.dwt, ${data?.dwt?.[0] || null}), IF(${vesselTypeQuery} = 'Bulk Carrier', 279000, COALESCE(vessel.dwt, ${data?.dwt?.[0] || null})) ), ${vesselTypePowQuery}) *  ${vesselTypeFactorQuery}`;
+    const target2019Query = `POW(IF(COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1})) = 'Bulk Carrier', LEAST(COALESCE(vessel.dwt, ${data?.dwt?.[0] || 0}), 279000), COALESCE(vessel.dwt, ${data?.dwt?.[0] || 0})), ${vesselTypePowQuery}) *  ${vesselTypeFactorQuery}`;
     const requiredQuery = `
       CASE
         WHEN ${year || 'year_tbl.year'} = 2019 THEN ${target2019Query}
@@ -123,7 +122,8 @@ export class VesselsService {
       END
     `;
     const DWTQuery = `IF(COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1})) = 'Bulk Carrier', LEAST(COALESCE(vessel.dwt, ${data?.dwt?.[0] || 0}), 279000), COALESCE(vessel.dwt, ${data?.dwt?.[0] || 0}))`;
-    const ciiQuery = `(${emissionsQuery} / (${DWTQuery} * COALESCE(SUM(distance_traveled), ${data?.distanceTravelled || 0}))) * 1000000`;
+    const ciiDWTQuery = `COALESCE(vessel.dwt, ${data?.dwt?.[0] || 0})`;
+    const ciiQuery = `(${emissionsQuery} / (${ciiDWTQuery} * COALESCE(SUM(distance_traveled), ${data?.distanceTravelled || 0}))) * 1000000`;
     const emissionsQueryEts: string = emissionsQuery;
     const ciiRateQuery = `(${ciiQuery}) / (${requiredQuery})`;
     const ciiDifferenceQuery = `(${ciiQuery}) - (${requiredQuery})`;
@@ -470,7 +470,7 @@ export class VesselsService {
       ciiRateQuery,
       ciiDifferenceQuery,
       categoryQuery,
-    } = this.generateCiiQueryString(+year);
+    } = this.generateCiiQueryString(year);
 
     return `
       SELECT
@@ -522,13 +522,10 @@ export class VesselsService {
         LEFT JOIN vessel_trip ON vessel_trip.vessel = vessel.id
         LEFT JOIN vessel_type ON vessel.vessel_type_id = vessel_type.id
         WHERE
-          DATE_FORMAT(to_date, '%Y') = 2019
+          DATE_FORMAT(to_date, '%Y') = ${year}
         GROUP BY vessel.id
       ) AS vessel2019_tbl ON vessel2019_tbl.vessel2019Id = res.id
       LEFT JOIN eu_ets ON eu_ets.vessel = res.id AND eu_ets.year = res.year
-
-      WHERE res.cii IS NOT NULL
-
       GROUP BY res.id
     `;
   }
@@ -1313,7 +1310,7 @@ export class VesselsService {
       year = new Date().getFullYear();
     }
 
-    const subQuery = this.generateCiiQuery(year);// .replace('WHERE res.cii IS NOT NULL', '');
+    const subQuery = this.generateCiiQuery(+year);// .replace('WHERE res.cii IS NOT NULL', '');
     const whereQuery = this.generateWhereQueryForList(companyId, searchOption);
 
     return this.getListData(subQuery, whereQuery, paginationOption, sortOption);
@@ -1998,7 +1995,7 @@ export class VesselsService {
   }
 
   async getGhgChartByCompany(companyId: number, year: number) {
-    return await this.vesselsRepository.manager.query(`
+    const query = `
       SELECT
         vessel.name,
         ghg.attained,
@@ -2006,17 +2003,18 @@ export class VesselsService {
         ghg.year,
         IF ((ghg.required - ghg.attained) >= 0, (ghg.required - ghg.attained), 0 ) AS excess,
         IF ((ghg.required - ghg.attained) < 0, (ghg.required - ghg.attained), 0 ) AS missing
-      FROM ghg
+      FROM ghg, vessel_trip
       ${this.generateLeftJoinTable([
-        'vessel',
-        'fleet',
-        'vessel_type',
-        'company',
-      ])}
+      'vessel',
+      'fleet',
+      'vessel_type',
+      'company',
+    ])}
       WHERE
         vessel.company_id = ${companyId}
         AND ghg.year = ${year}
-    `);
+    `;
+    return await this.vesselsRepository.manager.query(query);
   }
 
   async getGhgKpiByCompany(companyId: number, year: number) {
@@ -2026,7 +2024,7 @@ export class VesselsService {
         IF ((ghg.required - ghg.attained) >= 0, (ghg.required - ghg.attained), 0 ) AS excess,
         ghg.required - ghg.attained AS netComplianceUnits,
         IF (ghg.attained > ghg.required, true, false) AS hasPenalty
-      FROM ghg
+      FROM ghg, vessel_trip
       ${this.generateLeftJoinTable([
         'vessel',
         'fleet',
