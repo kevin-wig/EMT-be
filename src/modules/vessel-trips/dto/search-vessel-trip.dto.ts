@@ -1,12 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
+  IsBoolean,
   IsDateString,
   IsNumberString,
   IsOptional,
   IsString,
 } from 'class-validator';
 import { VoyageType } from 'src/shared/constants/global.constants';
+import { Transform } from 'class-transformer';
 
 export class SearchVesselTripDto {
   @ApiProperty()
@@ -68,4 +70,10 @@ export class SearchVesselTripDto {
   @IsOptional()
   @IsArray()
   voyageType?: VoyageType[];
+
+  @ApiProperty()
+  @IsOptional()
+  @Transform((params) => !!params.value)
+  @IsBoolean()
+  allType?: boolean;
 }
