@@ -90,7 +90,7 @@ export class CreateVesselTripDto {
   @ApiProperty()
   journeyType: JourneyType;
 
-  @IsIn([VoyageType.ACTUAL, VoyageType.ARCHIVED, VoyageType.PREDICTED])
+  @IsIn([VoyageType.ACTUAL, VoyageType.PREDICTED])
   @ApiProperty()
   voyageType: VoyageType;
 
@@ -215,7 +215,7 @@ export class CreateVesselTripUploadDto {
   @ApiProperty()
   journeyType: JourneyType;
 
-  @IsIn([VoyageType.ACTUAL, VoyageType.ARCHIVED, VoyageType.PREDICTED])
+  @IsIn([VoyageType.ACTUAL, VoyageType.PREDICTED])
   @ApiProperty()
   voyageType: VoyageType;
 
