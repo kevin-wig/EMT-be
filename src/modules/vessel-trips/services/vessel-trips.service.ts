@@ -103,7 +103,7 @@ export class VesselTripsService {
       vesselId,
       fromDate,
       toDate,
-      voyageType = [VoyageType.ACTUAL, VoyageType.PREDICTED, VoyageType.ARCHIVED],
+      voyageType = [VoyageType.ACTUAL, VoyageType.PREDICTED],
       search,
       companyId,
       originPort,
@@ -327,12 +327,6 @@ export class VesselTripsService {
       .createQueryBuilder()
       .update({ voyageType: VoyageType.PREDICTED })
       .where({ fromDate: MoreThan(current), voyageType: VoyageType.ACTUAL })
-      .execute()
-
-    const toArchive = await this.vesselTripRepository
-      .createQueryBuilder()
-      .update({ voyageType: VoyageType.ARCHIVED })
-      .where({ toDate: LessThan(current), voyageType: VoyageType.PREDICTED })
       .execute()
   }
 
@@ -707,7 +701,7 @@ export class VesselTripsService {
     ])}
       WHERE
         vessel_trip.journey_type = 'CII'
-        ${`AND vessel_trip.voyage_type in ('${voyageType.filter(type => type !== VoyageType.ARCHIVED).join("','")}')`}
+        ${`AND vessel_trip.voyage_type in ('${voyageType.join("','")}')`}
         ${fromDate ? `AND vessel_trip.from_date >= '${fromDate}'` : ''}
         ${toDate ? `AND vessel_trip.to_date <= '${toDate}'` : ''}
         ${vesselId ? `AND vessel.id = ${vesselId}` : ''}
