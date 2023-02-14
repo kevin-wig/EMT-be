@@ -121,8 +121,8 @@ export class VesselsService {
         ELSE ${target2019Query} * 0.89
       END
     `;
-    const DWTQuery = `IF(COALESCE(vessel_type.vessel_type, (SELECT vessel_type FROM vessel_type WHERE id = ${data?.vesselType || -1})) = 'Bulk Carrier', LEAST(COALESCE(vessel.dwt, ${data?.dwt?.[0] || 0}), 279000), COALESCE(vessel.dwt, ${data?.dwt?.[0] || 0}))`;
-    const ciiQuery = `(${emissionsQuery} / (${DWTQuery} * COALESCE(SUM(distance_traveled), ${data?.distanceTravelled || 0}))) * 1000000`;
+    const ciiDWTQuery = `COALESCE(vessel.dwt, ${data?.dwt?.[0] || 0})`;
+    const ciiQuery = `(${emissionsQuery} / (${ciiDWTQuery} * COALESCE(SUM(distance_traveled), ${data?.distanceTravelled || 0}))) * 1000000`;
     const emissionsQueryEts: string = emissionsQuery;
     const ciiRateQuery = `(${ciiQuery}) / (${requiredQuery})`;
     const ciiDifferenceQuery = `(${ciiQuery}) - (${requiredQuery})`;
@@ -174,7 +174,7 @@ export class VesselsService {
       emissionsQuery,
       emissionsQueryEts,
       ciiQuery,
-      DWTQuery,
+      DWTQuery: ciiDWTQuery,
       requiredQuery,
       ciiRateQuery,
       ciiDifferenceQuery,
