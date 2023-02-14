@@ -1153,7 +1153,9 @@ export class VesselsService {
       ${this.generateLeftJoinTable(['vessel', 'year_tbl_group_by', 'aggregate_tbl'])}
       WHERE
         vessel_trip.journey_type = 'CII'
-        ${`AND vessel_trip.voyage_type in ('${voyageType.join("','")}')`}
+        ${`AND vessel_trip.voyage_type in ('${voyageType
+          .filter((type) => type !== VoyageType.ARCHIVED)
+          .join("','")}')`}
         ${id ? `AND vessel = ${id}` : ''}
         ${fromDate ? `AND vessel_trip.from_date >= '${fromDate}'` : ''}
         ${toDate ? `AND vessel_trip.to_date <= '${toDate}'` : ''}

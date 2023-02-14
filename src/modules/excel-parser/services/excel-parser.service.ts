@@ -189,6 +189,8 @@ export class ExcelParserService {
 
         // if (trip.fromDate.format('YYYY-MM-DD') > moment().format('YYYY-MM-DD') && trip.toDate.format('YYYY-MM-DD') > moment().format('YYYY-MM-DD')) {
         //   voyageType = 'PREDICTED';
+        // } else if (trip.fromDate.format('YYYY-MM-DD') < moment().format('YYYY-MM-DD') && trip.toDate.format('YYYY-MM-DD') < moment().format('YYYY-MM-DD')) {
+        //   voyageType = 'ARCHIVED';
         // } else {
         //   voyageType = 'ACTUAL';
         // }

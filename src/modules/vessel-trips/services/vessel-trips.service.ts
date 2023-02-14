@@ -1,16 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeepPartial, getConnection, LessThan, MoreThan, Repository } from 'typeorm';
+import { DeepPartial, MoreThan, Repository } from 'typeorm';
 
 import { CreateVesselTripDto, CreateVesselTripUploadDto } from '../dto/create-vessel-trip.dto';
 import { UpdateVesselTripDto } from '../dto/update-vessel-trip.dto';
 import { VesselTrip } from '../entities/vessel-trip.entity';
 import { Port } from '../../vessels/entities/port.entity';
 import { Vessel } from '../../vessels/entities/vessel.entity';
-import {
-  PaginationDto,
-  PaginationParamsDto,
-} from '../../../shared/dtos/pagination.dto';
+import { PaginationDto, PaginationParamsDto } from '../../../shared/dtos/pagination.dto';
 import { SearchVesselTripDto } from '../dto/search-vessel-trip.dto';
 import { SortOrderDto } from '../../../shared/dtos/sort-order.dto';
 import { VesselsService } from '../../vessels/services/vessels.service';
@@ -32,9 +29,9 @@ import {
   DBound,
   DBound_BC,
   FuelFactors,
-  FuelType,
   GraphLevel,
-  JourneyType, Roles,
+  JourneyType,
+  Roles,
   VoyageType,
 } from '../../../shared/constants/global.constants';
 import { VesselTripTable } from '../dto/export-vessel-trip.dto';
@@ -42,8 +39,7 @@ import { pick } from '../../../shared/utils/pick';
 import { PdfService } from '../../../shared/services/pdf.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { YearlyAggregate } from '../entities/yearly-aggregate.entity';
-import * as moment from "moment";
-import { date } from 'joi';
+import * as moment from 'moment';
 import { IPayload } from '../../auth/auth.types';
 import { UsersService } from '../../users/services/users.service';
 
@@ -103,18 +99,19 @@ export class VesselTripsService {
       vesselId,
       fromDate,
       toDate,
-      voyageType = [VoyageType.ACTUAL, VoyageType.PREDICTED],
+      voyageType = [VoyageType.ACTUAL, VoyageType.PREDICTED, VoyageType.ARCHIVED],
       search,
       companyId,
       originPort,
       destinationPort,
       journeyType,
+      allType,
     } = searchOption;
 
     return `
       WHERE
         1
-        ${`AND vessel_trip.voyage_type in ('${voyageType.join("','")}')`}
+        ${`AND vessel_trip.voyage_type in ('${voyageType.filter((type) => type !== VoyageType.ARCHIVED || allType).join("','")}')`}
         ${voyageId ? `AND voyage_id = ${voyageId}` : ''}
         ${journeyType ? `AND vessel_trip.journey_type = '${journeyType}'` : ''}
         ${id ? `AND vessel_trip.id = ${id}` : ''}

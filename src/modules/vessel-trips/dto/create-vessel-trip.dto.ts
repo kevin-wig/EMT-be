@@ -90,7 +90,7 @@ export class CreateVesselTripDto {
   @ApiProperty()
   journeyType: JourneyType;
 
-  @IsIn([VoyageType.ACTUAL, VoyageType.PREDICTED])
+  @IsIn([VoyageType.ACTUAL, VoyageType.ARCHIVED, VoyageType.PREDICTED])
   @ApiProperty()
   voyageType: VoyageType;
 
