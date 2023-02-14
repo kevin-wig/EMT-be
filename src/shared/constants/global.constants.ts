@@ -73,6 +73,7 @@ export enum JourneyType {
 export enum VoyageType {
   ACTUAL = 'ACTUAL',
   PREDICTED = 'PREDICTED',
+  ARCHIVED = 'ARCHIVED'
 }
 
 export const ABound = 0.82;

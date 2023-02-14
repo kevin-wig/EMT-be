@@ -103,7 +103,7 @@ export class VesselTripsService {
       vesselId,
       fromDate,
       toDate,
-      voyageType = [VoyageType.ACTUAL, VoyageType.PREDICTED],
+      voyageType = [VoyageType.ACTUAL, VoyageType.PREDICTED, VoyageType.ARCHIVED],
       search,
       companyId,
       originPort,
