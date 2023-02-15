@@ -187,7 +187,12 @@ export class VesselsService {
     let joinTable = '';
 
     if (tables.includes('vessel_trip')) {
-      joinTable += `LEFT JOIN vessel_trip ON vessel_trip.vessel = vessel.id${isCII ? ` and vessel_trip.journey_type = 'CII'` : ''}\n`;
+      joinTable += `LEFT JOIN vessel_trip ON vessel_trip.vessel = vessel.id AND vessel_trip.voyage_type in ('${[
+        VoyageType.ACTUAL,
+        VoyageType.PREDICTED,
+      ].join("','")}')${
+        isCII ? ` and vessel_trip.journey_type = 'CII'` : ''
+      }\n`;
     }
 
     if (tables.includes('vessel')) {
