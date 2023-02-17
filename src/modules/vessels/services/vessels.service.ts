@@ -237,6 +237,10 @@ export class VesselsService {
           LEFT JOIN vessel_type ON vessel.vessel_type_id = vet.id
           WHERE
             vet.id <> vt.id
+            AND vet.voyage_type in ('${[
+              VoyageType.ACTUAL,
+              VoyageType.PREDICTED,
+            ].join("','")}')
             AND vt.is_aggregate = 1
             AND vt.from_date <= vet.from_date
             AND vt.to_date >= vet.to_date
@@ -664,6 +668,10 @@ export class VesselsService {
           AND DATE_FORMAT(to_date, '%Y') = ${year}
       ) AS dates ON 1
       WHERE vessel_trip.journey_type = 'ETS' AND DATE_FORMAT(to_date, '%Y') = ${year}
+        AND vessel_trip.voyage_type in ('${[
+          VoyageType.ACTUAL,
+          VoyageType.PREDICTED,
+        ].join("','")}')
       GROUP BY vessel_trip.id) AS res
       GROUP BY res.id
     `;
@@ -1088,6 +1096,10 @@ export class VesselsService {
         WHERE
           vessel_trip.journey_type = 'CII'
           AND vessel = ${id}
+          AND vessel_trip.voyage_type in ('${[
+            VoyageType.ACTUAL,
+            VoyageType.PREDICTED,
+          ].join("','")}')
           ${fromDate ? `AND vessel_trip.from_date >= '${fromDate}'` : ''}
           ${toDate ? `AND vessel_trip.to_date <= '${toDate}'` : ''}
           AND (${aggregateQuery})
@@ -1114,6 +1126,10 @@ export class VesselsService {
         WHERE
           vessel_trip.journey_type = 'CII'
           AND vessel = ${id}
+          AND vessel_trip.voyage_type in ('${[
+            VoyageType.ACTUAL,
+            VoyageType.PREDICTED,
+          ].join("','")}')
           ${level === GraphLevel.MONTH ? `AND year_tbl.year=${year}` : ''}
         GROUP BY ${level.toLowerCase()}_tbl.${level.toLowerCase()}
       `);
@@ -1194,6 +1210,10 @@ export class VesselsService {
       ])}
       WHERE
         vessel_trip.journey_type = 'CII'
+        AND vessel_trip.voyage_type in ('${[
+          VoyageType.ACTUAL,
+          VoyageType.PREDICTED,
+        ].join("','")}')
         AND vessel = ${id}
         AND year_tbl.year = ${year}
       GROUP BY year_tbl.year
@@ -1254,6 +1274,10 @@ export class VesselsService {
       ])}
       WHERE
         vessel_trip.journey_type = 'CII'
+        AND vessel_trip.voyage_type in ('${[
+          VoyageType.ACTUAL,
+          VoyageType.PREDICTED,
+        ].join("','")}')
         ${`AND vessel_trip.voyage_type in ('${voyageType.join("','")}')`}
         AND vessel = ${id}
         ${
@@ -1456,6 +1480,10 @@ export class VesselsService {
           vessel_type = '${type}'
           AND vessel.company_id = ${companyId}
           AND vessel_trip.journey_type = 'CII'
+          AND vessel_trip.voyage_type in ('${[
+            VoyageType.ACTUAL,
+            VoyageType.PREDICTED,
+          ].join("','")}')
           ${level === GraphLevel.MONTH ? `AND year_tbl.year=${year}` : ''}
           ${(level === GraphLevel.VOYAGE && month) ? `AND month_tbl.month=${month}` : ''}
           AND (${aggregateQuery})
@@ -1497,6 +1525,10 @@ export class VesselsService {
           ])}
           WHERE
             vessel.company_id = ${companyId}
+            AND vessel_trip.voyage_type in ('${[
+              VoyageType.ACTUAL,
+              VoyageType.PREDICTED,
+            ].join("','")}')
             AND vessel_trip.journey_type = 'CII'
             ${level === GraphLevel.MONTH ? `AND year_tbl.year=${year}` : ''}
             ${level === GraphLevel.VOYAGE ? `AND month_tbl.month=${month}` : ''}
@@ -1948,6 +1980,10 @@ export class VesselsService {
       FROM vessel_trip
       LEFT JOIN vessel ON vessel_trip.vessel = vessel.id
       WHERE
+        AND vessel_trip.voyage_type in ('${[
+          VoyageType.ACTUAL,
+          VoyageType.PREDICTED,
+        ].join("','")}')
         vessel.company_id = ${companyId}
         AND DATE_FORMAT(to_date, '%Y') = ${year}
     `);

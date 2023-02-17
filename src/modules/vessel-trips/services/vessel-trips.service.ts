@@ -99,7 +99,7 @@ export class VesselTripsService {
       vesselId,
       fromDate,
       toDate,
-      voyageType = [VoyageType.ACTUAL, VoyageType.PREDICTED, VoyageType.ARCHIVED],
+      voyageType = [VoyageType.ACTUAL, VoyageType.PREDICTED],
       search,
       companyId,
       originPort,
@@ -309,6 +309,10 @@ export class VesselTripsService {
         ])}
           WHERE
             vessel_trip.journey_type = 'ETS'
+          AND vessel_trip.voyage_type in ('${[
+            VoyageType.ACTUAL,
+            VoyageType.PREDICTED,
+          ].join("','")}')
             AND vessel_trip.id = ${id}
           GROUP BY vessel_trip.id) AS res
       `,
@@ -698,6 +702,10 @@ export class VesselTripsService {
     ])}
       WHERE
         vessel_trip.journey_type = 'CII'
+        AND vessel_trip.voyage_type in ('${[
+          VoyageType.ACTUAL,
+          VoyageType.PREDICTED,
+        ].join("','")}')
         ${`AND vessel_trip.voyage_type in ('${voyageType.join("','")}')`}
         ${fromDate ? `AND vessel_trip.from_date >= '${fromDate}'` : ''}
         ${toDate ? `AND vessel_trip.to_date <= '${toDate}'` : ''}

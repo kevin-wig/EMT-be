@@ -5,7 +5,7 @@ import { RefreshApiKeyDto } from '../dto/refresh-apikey.dto';
 import { ApiKey } from '../entities/api-key.entity';
 import * as moment from 'moment';
 import { Vessel } from 'src/modules/vessels/entities/vessel.entity';
-import { ABound, BBound, CBound, DBound } from 'src/shared/constants/global.constants';
+import { ABound, BBound, CBound, DBound, VoyageType } from 'src/shared/constants/global.constants';
 import { VesselTrip } from 'src/modules/vessel-trips/entities/vessel-trip.entity';
 import { GetCIIDataDto } from '../dto/get-cii-data.dto';
 import { VesselsService } from 'src/modules/vessels/services/vessels.service';
@@ -126,6 +126,10 @@ export class ApiKeyService {
       ])}
         WHERE
           vessel_trip.journey_type = 'CII'
+          AND vessel_trip.voyage_type in ('${[
+            VoyageType.ACTUAL,
+            VoyageType.PREDICTED,
+          ].join("','")}')
           AND vessel_type_id = '${data.vesselType}'
           ${vesselId ? `AND vessel = ${vesselId}` : ''}
           ${data.mgo ? `AND mgo = ${data.mgo}` : ''}
